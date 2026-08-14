@@ -1,36 +1,13 @@
-﻿// ========== 用户数据管理 ==========
-const STORAGE_KEY = 'cultivation_users';
+﻿// ========== Supabase 初始化 ==========
+const SUPABASE_URL = 'https://iejwqfiqdxhkdqjmwfki.supabase.co';
+const SUPABASE_ANON_KEY = 'sb_publishable_uQdpBniIdCdBwzoukWJNjw_vWEyC396';
 
-
-
-function loadUsers() {
-    const data = localStorage.getItem(STORAGE_KEY);
-    return data ? JSON.parse(data) : {};
-}
-
-function saveUsers(users) {
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(users));
-}
-
-function defaultUserData(daoName) {
-    return {
-        daoName: daoName,
-        age: 27,
-        cultivationValue: 47,
-        stageIndex: 0,
-        attributes: {
-            intelligence: 12,
-            strength: 9,
-            order: 14,
-            dexterity: 11,
-            luck: 8
-        },
-        cultivatingAttribute: null
-    };
-}
+const mysupabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
 // ========== 全局数据 ==========
-let cultivationData = null; // 当前登录用户数据
+let cultivationData = null;          // 当前登录用户的修炼数据（内存态）
+let currentUser = null;              // 当前登录用户的 users 表记录
+let rizhiLogs = [];                  // 修行日志数组
 
 const stages = [
     { name: '练气期', threshold: 0, nextThreshold: 100 },
@@ -41,11 +18,11 @@ const stages = [
 ];
 
 const attributeMap = {
-    intelligence: { short: 'int', name: '智力', icon: '📖' },
-    strength: { short: 'str', name: '体质', icon: '💪' },
-    order: { short: 'ord', name: '秩序', icon: '📐' },
-    dexterity: { short: 'dex', name: '灵巧', icon: '🍃' },
-    luck: { short: 'lck', name: '幸运', icon: '🍀' }
+    intelligence: { short: 'int', name: '智力', icon: '📖', dbField: 'zhili' },
+    strength: { short: 'str', name: '体质', icon: '💪', dbField: 'tizhi' },
+    order: { short: 'ord', name: '秩序', icon: '📐', dbField: 'zhixu' },
+    dexterity: { short: 'dex', name: '灵巧', icon: '🍃', dbField: 'lingqiao' },
+    luck: { short: 'lck', name: '幸运', icon: '🍀', dbField: 'xingyun' }
 };
 
 // ========== 粒子背景 ==========
@@ -128,23 +105,53 @@ function animateParticles() {
 }
 animateParticles();
 
-// ========== UI更新 ==========
+// ========== 工具函数 ==========
 function getCurrentStage() { return stages[cultivationData.stageIndex]; }
-
 function getNextStage() {
     if (cultivationData.stageIndex < stages.length - 1) return stages[cultivationData.stageIndex + 1];
     return null;
 }
 
+function getDaoAge(createtime) {
+    const created = new Date(createtime);
+    const now = new Date();
+    const diffMs = now - created;
+    const days = Math.floor(diffMs / (1000 * 60 * 60 * 24));
+    return Math.max(0, days);
+}
+
+function calculateStageIndex(xiuwei) {
+    let idx = 0;
+    for (let i = stages.length - 1; i >= 0; i--) {
+        if (xiuwei >= stages[i].threshold) {
+            idx = i;
+            break;
+        }
+    }
+    return idx;
+}
+
+function formatTime(timeStr) {
+    const d = new Date(timeStr);
+    return d.toLocaleString('zh-CN', { hour12: false });
+}
+
+// ========== UI 更新 ==========
 function updateUI(animateValue = false) {
     const stage = getCurrentStage();
     const nextStage = getNextStage();
     const cv = cultivationData.cultivationValue;
 
     document.getElementById('dao-name').textContent = cultivationData.daoName;
-    document.getElementById('age-display').textContent = cultivationData.age;
+    document.getElementById('lingshi-display').textContent = cultivationData.spiritStones;
     document.getElementById('stage-display').textContent = stage.name;
     document.getElementById('stage-name').textContent = stage.name;
+
+    if (currentUser && currentUser.createtime) {
+        document.getElementById('dao-age').textContent = getDaoAge(currentUser.createtime) + '天';
+    } else {
+        document.getElementById('dao-age').textContent = '0天';
+    }
 
     const cvEl = document.getElementById('cultivation-value');
     cvEl.textContent = cv;
@@ -201,6 +208,40 @@ function setRecentLog(text) {
     document.getElementById('recent-log').textContent = text;
 }
 
+// ========== 修行日志 ==========
+async function fetchRizhiLogs() {
+    if (!currentUser) return;
+    const { data, error } = await mysupabase
+        .from('rizhi')
+        .select('*')
+        .eq('number', currentUser.number)
+        .order('time', { ascending: true });
+
+    if (error) {
+        console.error('获取日志失败:', error);
+        return;
+    }
+    rizhiLogs = data || [];
+    renderRizhiLogs();
+}
+
+function renderRizhiLogs() {
+    const container = document.getElementById('rizhi-log-list');
+    if (!container) return;
+    if (rizhiLogs.length === 0) {
+        container.innerHTML = '<span style="color:rgba(200,160,80,0.3);">— 暂无修行记录 —</span>';
+        return;
+    }
+    container.innerHTML = rizhiLogs.map(log => {
+        const icon = log.type === 1 ? '🧘' : '📌';
+        return `<div class="rizhi-log-item">
+                    <span class="rizhi-log-time">${formatTime(log.time)}</span>
+                    <span class="rizhi-log-icon">${icon}</span>
+                    <span class="rizhi-log-record">${log.record}</span>
+                </div>`;
+    }).join('');
+}
+
 // ========== 粒子特效 ==========
 function spawnSpiritParticles(sourceElement, text, count = 8) {
     const rect = sourceElement.getBoundingClientRect();
@@ -227,21 +268,16 @@ function handleAttributeClick(event) {
     const attribute = card.dataset.attribute;
     const target = event.target;
 
-    if (target.classList.contains('cancel-cultivation-btn')) {
-        return;
-    }
+    if (target.classList.contains('cancel-cultivation-btn')) return;
 
     if (target.classList.contains('attribute-status')) {
         if (cultivationData.cultivatingAttribute === attribute) {
             openCompleteModal(attribute);
-        }
-        else if (cultivationData.cultivatingAttribute === null) {
+        } else if (cultivationData.cultivatingAttribute === null) {
             startCultivation(attribute, card);
-        }
-        else {
+        } else {
             const currentAttr = cultivationData.cultivatingAttribute;
-            const currentName = attributeMap[currentAttr].name;
-            setRecentLog(`⚠️ 正在修炼${currentName}，请先完成当前修炼或取消`);
+            setRecentLog(`⚠️ 正在修炼${attributeMap[currentAttr].name}，请先完成当前修炼或取消`);
             const currentCard = document.getElementById(`card-${attributeMap[currentAttr].short}`);
             if (currentCard) {
                 currentCard.style.animation = 'shake 0.5s ease';
@@ -267,7 +303,6 @@ function startCultivation(attribute, card) {
 
     const attrInfo = attributeMap[attribute];
     setRecentLog(`🧘 开始修炼${attrInfo.name}... 达成1小时后点击“修炼完成”按钮`);
-
     spawnSpiritParticles(card, attrInfo.icon, 5);
 }
 
@@ -291,7 +326,8 @@ function confirmComplete() {
     completeCultivation(attribute, card, note);
 }
 
-function completeCultivation(attribute, card, note = '') {
+async function completeCultivation(attribute, card, note = '') {
+    // 更新内存数据
     cultivationData.attributes[attribute] += 1;
     cultivationData.cultivationValue += 1;
     cultivationData.cultivatingAttribute = null;
@@ -299,48 +335,52 @@ function completeCultivation(attribute, card, note = '') {
     const nextStage = getNextStage();
     let brokeThrough = false;
     if (nextStage && cultivationData.cultivationValue >= nextStage.threshold) {
-        cultivationData.stageIndex++;
+        cultivationData.stageIndex = calculateStageIndex(cultivationData.cultivationValue);
         brokeThrough = true;
     }
 
     updateUI(true);
 
     const attrInfo = attributeMap[attribute];
-    let logMsg = `✨ ${attrInfo.name}修炼完成！${attrInfo.name}+1，修为+1`;
-    if (note) {
-        logMsg += `，修炼痕迹：${note}`;
-    }
-    setRecentLog(logMsg);
+    let record = `完成${attrInfo.name}修炼，${attrInfo.name}+1，修为+1`;
+    if (note) record += `，修炼痕迹：${note}`;
+    setRecentLog('✨ ' + record);
 
     card.classList.add('completing');
-    setTimeout(() => {
-        card.classList.remove('completing');
-    }, 600);
-
+    setTimeout(() => card.classList.remove('completing'), 600);
     spawnSpiritParticles(card, '+1', 10);
 
-    if (brokeThrough) {
-        triggerBreakthrough();
+    if (brokeThrough) triggerBreakthrough();
+
+    // 插入日志到 rizhi 表
+    if (currentUser) {
+        const { error: insertError } = await mysupabase
+            .from('rizhi')
+            .insert([{
+                number: currentUser.number,
+                time: new Date().toISOString(),
+                type: 1,
+                record: record
+            }]);
+        if (insertError) console.error('插入日志失败:', insertError);
     }
 
-    saveCurrentUser();
+    // 更新 users 表
+    await updateUserData();
+
+    // 刷新日志
+    await fetchRizhiLogs();
 }
 
 function cancelCultivation(attribute) {
     if (cultivationData.cultivatingAttribute !== attribute) return;
-
     cultivationData.cultivatingAttribute = null;
     updateCultivationStatus();
 
     const attrInfo = attributeMap[attribute];
     setRecentLog(`🚫 已取消${attrInfo.name}的修炼，无任何收益`);
-
     const card = document.getElementById(`card-${attributeMap[attribute].short}`);
-    if (card) {
-        spawnSpiritParticles(card, '取消', 3);
-    }
-
-    saveCurrentUser();
+    if (card) spawnSpiritParticles(card, '取消', 3);
 }
 
 function triggerBreakthrough() {
@@ -350,88 +390,240 @@ function triggerBreakthrough() {
     setRecentLog(`🌟 突破！晋升 ${getCurrentStage().name}！`);
 }
 
-// ========== 用户登录/注册 ==========
-function handleLogin() {
-    const daoName = document.getElementById('login-dao-name').value.trim();
-    const spiritMark = document.getElementById('login-spirit-mark').value.trim();
-    const messageEl = document.getElementById('login-message');
+// ========== 数据库操作 ==========
+async function updateUserData() {
+    if (!currentUser || !cultivationData) return;
+    const dbUpdates = {
+        xiuwei: cultivationData.cultivationValue,
+        lingshi: cultivationData.spiritStones,
+        zhili: cultivationData.attributes.intelligence,
+        tizhi: cultivationData.attributes.strength,
+        zhixu: cultivationData.attributes.order,
+        lingqiao: cultivationData.attributes.dexterity,
+        xingyun: cultivationData.attributes.luck
+    };
+    const { error } = await mysupabase
+        .from('users')
+        .update(dbUpdates)
+        .eq('name', currentUser.name);
+    if (error) console.error('更新用户数据失败:', error);
+}
 
-    if (!daoName || !spiritMark) {
-        messageEl.textContent = '道号和神纹均不能为空';
+// ========== 登录/注册/登出 ==========
+function mapUserToCultivationData(user) {
+    const stageIndex = calculateStageIndex(user.xiuwei || 0);
+    return {
+        daoName: user.name,
+        age: 27, // 骨龄已移除，此字段不再使用
+        cultivationValue: user.xiuwei || 0,
+        stageIndex: stageIndex,
+        spiritStones: user.lingshi || 0,
+        attributes: {
+            intelligence: user.zhili || 0,
+            strength: user.tizhi || 0,
+            order: user.zhixu || 0,
+            dexterity: user.lingqiao || 0,
+            luck: user.xingyun || 0
+        },
+        cultivatingAttribute: null
+    };
+}
+
+// 缓存处理（存储 name 和 number）
+function getCachedUser() {
+    const cached = localStorage.getItem('current_user');
+    return cached ? JSON.parse(cached) : null;
+}
+
+function setCachedUser(user) {
+    localStorage.setItem('current_user', JSON.stringify({ name: user.name, number: user.number }));
+}
+
+function clearCachedUser() {
+    localStorage.removeItem('current_user');
+}
+
+// 自动登录检查
+async function checkAutoLogin() {
+    const cachedUser = getCachedUser();
+    if (!cachedUser || !cachedUser.name) {
+        showLogin();
         return;
     }
 
-    const users = loadUsers();
-    if (users[daoName]) {
-        // 登录
-        if (users[daoName].spiritMark === spiritMark) {
-            cultivationData = users[daoName].data;
-            messageEl.textContent = '登录成功，欢迎回来！';
-            enterMainPanel();
-        } else {
-            messageEl.textContent = '神纹错误，请重新输入';
-        }
-    } else {
-        // 注册
-        const newUser = {
-            spiritMark: spiritMark,
-            data: defaultUserData(daoName)
-        };
-        users[daoName] = newUser;
-        saveUsers(users);
-        cultivationData = newUser.data;
-        messageEl.textContent = '注册成功，欢迎入卷！';
-        enterMainPanel();
+    const { data: user, error } = await mysupabase
+        .from('users')
+        .select('*')
+        .eq('name', cachedUser.name)
+        .maybeSingle();
+
+    if (error || !user) {
+        clearCachedUser();
+        showLogin();
+        return;
     }
+
+    currentUser = user;
+    cultivationData = mapUserToCultivationData(user);
+    await fetchRizhiLogs(); // 初始化日志
+    enterMainPanel();
 }
 
+// 显示登录界面
+function showLogin() {
+    document.getElementById('login-overlay').style.display = 'flex';
+    document.getElementById('main-container').style.display = 'none';
+    document.getElementById('login-message').textContent = '';
+    document.getElementById('login-dao-name').value = '';
+    document.getElementById('login-spirit-mark').value = '';
+}
+
+// 进入主面板
 function enterMainPanel() {
     document.getElementById('login-overlay').style.display = 'none';
     document.getElementById('main-container').style.display = 'block';
-    // 初始化主面板事件
-    initMainPanel();
+    if (!window._mainPanelInitialized) {
+        initMainPanel();
+        window._mainPanelInitialized = true;
+    }
     updateUI();
     setRecentLog('点击属性卡片开始修炼，修炼达成后点击“修炼完成”按钮');
 }
 
+// 处理登录按钮
+async function handleLogin() {
+    const daoName = document.getElementById('login-dao-name').value.trim();
+    const password = document.getElementById('login-spirit-mark').value.trim();
+    const messageEl = document.getElementById('login-message');
+    const loginBtn = document.getElementById('login-btn');
+
+    if (!daoName || !password) {
+        messageEl.textContent = '道号和神纹均不能为空';
+        return;
+    }
+
+    loginBtn.disabled = true;
+    messageEl.textContent = '正在入卷...';
+
+    try {
+        // 查询用户
+        const { data: user, error: queryError } = await mysupabase
+            .from('users')
+            .select('*')
+            .eq('name', daoName)
+            .maybeSingle();
+
+        if (queryError) throw queryError;
+
+        if (user) {
+            // 用户存在，校验密码
+            if (user.password !== password) {
+                const spiritInput = document.getElementById('login-spirit-mark');
+                spiritInput.value = '';
+                messageEl.textContent = '道友神纹匹配失败';
+                spawnSpiritParticles(spiritInput, '❌ 神纹错误', 10);
+                spiritInput.style.animation = 'shake 0.5s ease';
+                spiritInput.addEventListener('animationend', () => { spiritInput.style.animation = ''; }, { once: true });
+                return;
+            }
+
+            // 登录成功
+            currentUser = user;
+            cultivationData = mapUserToCultivationData(user);
+            setCachedUser(user);
+            await fetchRizhiLogs(); // 初始化日志
+            messageEl.textContent = '登录成功，欢迎回来！';
+            enterMainPanel();
+        } else {
+            // 注册新用户
+            const { data: maxData } = await mysupabase
+                .from('users')
+                .select('number')
+                .order('number', { ascending: false })
+                .limit(1);
+
+            let newNumber = 1;
+            if (maxData && maxData.length > 0) newNumber = maxData[0].number + 1;
+
+            const newUser = {
+                number: newNumber,
+                name: daoName,
+                password: password,
+                createtime: new Date().toISOString(),
+                xiuwei: 47,
+                lingshi: 25,
+                zhili: 12,
+                tizhi: 9,
+                zhixu: 14,
+                lingqiao: 11,
+                xingyun: 8
+            };
+
+            const { data: insertedUser, error: insertError } = await mysupabase
+                .from('users')
+                .insert([newUser])
+                .select()
+                .single();
+
+            if (insertError) throw insertError;
+
+            currentUser = insertedUser;
+            cultivationData = mapUserToCultivationData(insertedUser);
+            setCachedUser(insertedUser);
+            await fetchRizhiLogs(); // 新用户日志为空，但也要初始化
+
+            messageEl.textContent = '恭喜新道友入卷！';
+            spawnSpiritParticles(document.getElementById('login-btn'), '🎉 入卷', 12);
+            setTimeout(() => enterMainPanel(), 800);
+        }
+    } catch (err) {
+        console.error('登录/注册异常:', err);
+        messageEl.textContent = '网络错误，请稍后再试';
+    } finally {
+        loginBtn.disabled = false;
+    }
+}
+
+// 登出
+function handleLogout() {
+    clearCachedUser();
+    currentUser = null;
+    cultivationData = null;
+    rizhiLogs = [];
+    showLogin();
+}
+
 // ========== 主面板初始化 ==========
 function initMainPanel() {
-    // 绑定属性卡片点击事件
+    document.getElementById('logout-btn').addEventListener('click', handleLogout);
+
     document.querySelectorAll('.attribute-card').forEach(card => {
         card.addEventListener('click', handleAttributeClick);
     });
 
-    // 绑定取消按钮点击事件
     document.querySelectorAll('.cancel-cultivation-btn').forEach(btn => {
         btn.addEventListener('click', function (e) {
             e.stopPropagation();
             const short = this.id.replace('cancel-', '');
             const attribute = Object.keys(attributeMap).find(key => attributeMap[key].short === short);
-            if (attribute) {
-                cancelCultivation(attribute);
-            }
+            if (attribute) cancelCultivation(attribute);
         });
     });
 
-    // 绑定状态按钮事件
     document.querySelectorAll('.attribute-status').forEach(statusBtn => {
         statusBtn.addEventListener('click', function (e) {
             e.stopPropagation();
             const card = this.closest('.attribute-card');
-            if (card) {
-                handleAttributeClick({ currentTarget: card, target: this });
-            }
+            if (card) handleAttributeClick({ currentTarget: card, target: this });
         });
     });
 
-    // 对话框按钮事件
     document.getElementById('confirm-complete-btn').addEventListener('click', confirmComplete);
     document.getElementById('cancel-complete-btn').addEventListener('click', closeCompleteModal);
     document.getElementById('cultivation-complete-modal').addEventListener('click', function (e) {
         if (e.target === this) closeCompleteModal();
     });
 
-    // 键盘快捷键
     document.addEventListener('keydown', handleKeydown);
 }
 
@@ -449,47 +641,23 @@ function handleKeydown(e) {
         const attribute = keyMap[e.code];
         const short = attributeMap[attribute].short;
         const card = document.getElementById(`card-${short}`);
-        if (card) {
-            handleAttributeClick({ currentTarget: card, target: card });
-        }
+        if (card) handleAttributeClick({ currentTarget: card, target: card });
     }
 
     if (e.code === 'Escape') {
-        if (pendingCompleteAttribute) {
-            closeCompleteModal();
-        } else if (cultivationData && cultivationData.cultivatingAttribute) {
-            cancelCultivation(cultivationData.cultivatingAttribute);
-        }
-    }
-}
-
-// ========== 保存当前用户数据 ==========
-function saveCurrentUser() {
-    const users = loadUsers();
-    if (cultivationData) {
-        const daoName = cultivationData.daoName;
-        if (users[daoName]) {
-            users[daoName].data = cultivationData;
-            saveUsers(users);
-        }
+        if (pendingCompleteAttribute) closeCompleteModal();
+        else if (cultivationData && cultivationData.cultivatingAttribute) cancelCultivation(cultivationData.cultivatingAttribute);
     }
 }
 
 // ========== 初始化 ==========
 function init() {
-    // 绑定登录按钮
     document.getElementById('login-btn').addEventListener('click', handleLogin);
-    // 按回车登录
     document.getElementById('login-spirit-mark').addEventListener('keypress', function (e) {
         if (e.key === 'Enter') handleLogin();
     });
 
-    // 检查是否有已登录用户（自动登录），简化处理，这里不实现自动登录
-    // 默认显示登录界面
-    document.getElementById('login-overlay').style.display = 'flex';
-    document.getElementById('main-container').style.display = 'none';
-
-    console.log('🌌 太虚道卷 · 登录系统已就绪');
+    checkAutoLogin();
 }
 
 // 添加 shake 动画
@@ -502,11 +670,9 @@ style.textContent = `
         60% { transform: translateX(-3px); }
         80% { transform: translateX(3px); }
     }
-    
     .breakthrough-flash {
         animation: flashGold 0.6s ease-out;
     }
-    
     @keyframes flashGold {
         0% { box-shadow: 0 0 60px rgba(180, 140, 60, 0.25); }
         50% { box-shadow: 0 0 150px rgba(255, 215, 0, 0.8); }

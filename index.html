@@ -4,7 +4,989 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>修仙面板 - 太虚道卷</title>
-    <link rel="stylesheet" href="css/style.css">
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <style>
+        :root {
+            --bg-deep: #0a0a14;
+            --gold: #d4a843;
+            --gold-light: #f0d68a;
+            --gold-bright: #ffd700;
+            --text: #c8c0d0;
+            --text-light: #e8e0f0;
+            --panel-bg: rgba(15, 12, 30, 0.85);
+            --border-subtle: rgba(180, 150, 100, 0.3);
+            --glow-gold: 0 0 20px rgba(212, 168, 67, 0.5);
+            --font-title: 'STKaiti', 'KaiTi', '楷体', 'Noto Serif SC', serif;
+            --font-body: 'STSong', 'SimSun', '宋体', 'Noto Serif SC', serif;
+            --card-bg: rgba(20, 16, 35, 0.7);
+            --int-color: #7eb8ff;
+            --str-color: #ff7e7e;
+            --ord-color: #c7b8ea;
+            --dex-color: #7ef0c8;
+            --lck-color: #ffd700;
+            --danger: #ff6b6b;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            background: #1a1410;
+            background-image: radial-gradient(ellipse at 50% 0%, rgba(180, 140, 60, 0.2) 0%, transparent 60%), radial-gradient(ellipse at 80% 20%, rgba(200, 160, 80, 0.15) 0%, transparent 50%), radial-gradient(ellipse at 20% 80%, rgba(180, 140, 60, 0.12) 0%, transparent 50%), radial-gradient(ellipse at 50% 100%, rgba(220, 180, 80, 0.1) 0%, transparent 40%);
+            font-family: var(--font-body);
+            color: var(--text);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: flex-start;
+            overflow-x: hidden;
+            position: relative;
+            padding: 20px 0;
+        }
+
+        #particles-canvas {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 0;
+            pointer-events: none;
+        }
+
+        /* ========== 登录界面 ========== */
+        .login-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.6);
+            z-index: 500;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            animation: fadeIn 0.3s ease;
+        }
+
+        .login-box {
+            background: rgba(20, 15, 35, 0.95);
+            border: 2px solid rgba(220, 180, 80, 0.5);
+            border-radius: 14px;
+            padding: 30px 35px;
+            text-align: center;
+            box-shadow: 0 0 80px rgba(180, 140, 60, 0.4);
+            max-width: 350px;
+            width: 90%;
+            backdrop-filter: blur(20px);
+        }
+
+        .login-title {
+            font-family: var(--font-title);
+            font-size: 2em;
+            color: #f5e0b0;
+            letter-spacing: 6px;
+            margin-bottom: 4px;
+            text-shadow: 0 0 30px rgba(240, 210, 130, 0.5);
+        }
+
+        .login-subtitle {
+            font-size: 0.75em;
+            color: rgba(220, 200, 160, 0.6);
+            letter-spacing: 3px;
+            margin-bottom: 12px;
+        }
+
+        .login-divider {
+            width: 60%;
+            height: 1px;
+            background: linear-gradient(90deg, transparent, #d4a843, #f0d080, #d4a843, transparent);
+            margin: 8px auto 16px;
+            opacity: 0.7;
+        }
+
+        .login-field {
+            text-align: left;
+            margin-bottom: 14px;
+        }
+
+            .login-field label {
+                display: block;
+                font-size: 0.7em;
+                color: rgba(220, 200, 160, 0.8);
+                letter-spacing: 2px;
+                margin-bottom: 4px;
+            }
+
+            .login-field input {
+                width: 100%;
+                background: rgba(30, 22, 45, 0.8);
+                border: 1px solid rgba(200, 160, 80, 0.35);
+                border-radius: 6px;
+                padding: 8px 12px;
+                color: #e8dcc8;
+                font-family: var(--font-body);
+                font-size: 0.9em;
+                outline: none;
+                transition: border-color 0.3s;
+            }
+
+                .login-field input:focus {
+                    border-color: rgba(255, 215, 0, 0.7);
+                    box-shadow: 0 0 10px rgba(220, 180, 80, 0.2);
+                }
+
+        .login-btn {
+            width: 100%;
+            background: rgba(220, 180, 80, 0.15);
+            border: 2px solid #d4a843;
+            color: #f5e0b0;
+            font-family: var(--font-title);
+            font-size: 1em;
+            padding: 9px 0;
+            border-radius: 24px;
+            cursor: pointer;
+            letter-spacing: 4px;
+            transition: all 0.3s ease;
+            margin-top: 4px;
+            text-shadow: 0 0 10px rgba(220, 180, 80, 0.4);
+        }
+
+            .login-btn:hover {
+                background: rgba(220, 180, 80, 0.25);
+                box-shadow: var(--glow-gold), inset 0 0 20px rgba(220, 180, 80, 0.15);
+                color: #ffd700;
+            }
+
+        .login-message {
+            font-size: 0.7em;
+            color: rgba(220, 200, 160, 0.7);
+            margin-top: 10px;
+            min-height: 1.2em;
+            letter-spacing: 1px;
+        }
+
+        /* ========== 主容器 ========== */
+        .main-container {
+            position: relative;
+            z-index: 1;
+            width: 800px;
+            max-width: 97vw;
+            padding: 15px;
+        }
+
+        /* ========== 出卷按钮 ========== */
+        .logout-btn {
+            position: absolute;
+            top: 20px;
+            right: 28px;
+            z-index: 10;
+            background: rgba(220, 180, 80, 0.12);
+            border: 1px solid rgba(220, 180, 80, 0.5);
+            color: #f5e0b0;
+            font-family: var(--font-title);
+            font-size: 0.8em;
+            padding: 4px 14px;
+            border-radius: 14px;
+            cursor: pointer;
+            letter-spacing: 2px;
+            transition: all 0.3s;
+            text-shadow: 0 0 8px rgba(220, 180, 80, 0.4);
+        }
+
+            .logout-btn:hover {
+                background: rgba(220, 180, 80, 0.25);
+                box-shadow: 0 0 12px rgba(220, 180, 80, 0.4);
+                border-color: rgba(255, 215, 0, 0.7);
+                color: #ffd700;
+            }
+
+        /* ========== 面板样式 ========== */
+        .cultivation-panel, .rizhi-panel {
+            background: var(--panel-bg);
+            border: 2px solid var(--border-subtle);
+            border-radius: 16px;
+            padding: 30px 35px;
+            position: relative;
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            box-shadow: 0 0 60px rgba(180, 140, 60, 0.25), 0 0 120px rgba(160, 120, 40, 0.18), inset 0 1px 0 rgba(255, 220, 160, 0.04);
+            overflow: hidden;
+            transition: box-shadow 0.5s ease;
+            margin-bottom: 20px;
+        }
+
+            .cultivation-panel::before, .rizhi-panel::before {
+                content: '';
+                position: absolute;
+                top: 0;
+                left: 0;
+                right: 0;
+                bottom: 0;
+                border-radius: 16px;
+                border: 1px solid transparent;
+                background: linear-gradient(135deg, rgba(220, 180, 80, 0.25) 0%, transparent 25%, transparent 75%, rgba(180, 140, 60, 0.2) 100%) border-box;
+                -webkit-mask: linear-gradient(#fff 0 0) padding-box, linear-gradient(#fff 0 0);
+                -webkit-mask-composite: xor;
+                mask-composite: exclude;
+                pointer-events: none;
+            }
+
+        .corner-decoration {
+            position: absolute;
+            width: 70px;
+            height: 70px;
+            pointer-events: none;
+            opacity: 0.8;
+            z-index: 2;
+        }
+
+        .corner-tl {
+            top: 8px;
+            left: 8px;
+            border-top: 2px solid #d4a843;
+            border-left: 2px solid #d4a843;
+            border-radius: 8px 0 0 0;
+            box-shadow: -2px -2px 8px rgba(212, 168, 67, 0.3);
+        }
+
+        .corner-tr {
+            top: 8px;
+            right: 8px;
+            border-top: 2px solid #d4a843;
+            border-right: 2px solid #d4a843;
+            border-radius: 0 8px 0 0;
+            box-shadow: 2px -2px 8px rgba(212, 168, 67, 0.3);
+        }
+
+        .corner-bl {
+            bottom: 8px;
+            left: 8px;
+            border-bottom: 2px solid #c9a050;
+            border-left: 2px solid #c9a050;
+            border-radius: 0 0 0 8px;
+            box-shadow: -2px 2px 8px rgba(201, 160, 80, 0.3);
+        }
+
+        .corner-br {
+            bottom: 8px;
+            right: 8px;
+            border-bottom: 2px solid #c9a050;
+            border-right: 2px solid #c9a050;
+            border-radius: 0 0 8px 0;
+            box-shadow: 2px 2px 8px rgba(201, 160, 80, 0.3);
+        }
+
+        .header-section {
+            text-align: center;
+            margin-bottom: 22px;
+            position: relative;
+            z-index: 3;
+        }
+
+        .panel-title {
+            font-family: var(--font-title);
+            font-size: 2.2em;
+            color: #f5e0b0;
+            letter-spacing: 6px;
+            margin-bottom: 5px;
+            font-weight: normal;
+            text-shadow: 0 0 30px rgba(240, 210, 130, 0.5), 0 0 60px rgba(220, 180, 80, 0.3);
+        }
+
+        .panel-subtitle {
+            font-size: 0.85em;
+            color: rgba(220, 200, 160, 0.7);
+            letter-spacing: 3px;
+        }
+
+        .divider {
+            width: 60%;
+            height: 1px;
+            background: linear-gradient(90deg, transparent, #d4a843, #f0d080, #d4a843, transparent);
+            margin: 12px auto;
+            opacity: 0.7;
+        }
+
+        /* ========== 身份信息区（修改：集中居中） ========== */
+        .identity-section {
+            display: flex;
+            justify-content: center; /* 水平居中 */
+            align-items: center;
+            gap: 30px; /* 适当间距 */
+            margin-bottom: 18px;
+            flex-wrap: wrap;
+            position: relative;
+            z-index: 3;
+        }
+
+        .identity-item {
+            flex: 0 0 auto; /* 不伸展，保持内容宽度 */
+            text-align: center;
+            min-width: 80px; /* 保证标签对齐的最小宽度 */
+        }
+
+        .identity-label {
+            font-size: 0.7em;
+            color: rgba(220, 200, 160, 0.7);
+            letter-spacing: 2px;
+            text-transform: uppercase;
+        }
+
+        .identity-value {
+            font-family: var(--font-title);
+            font-size: 1.3em;
+            color: var(--text-light);
+            margin-top: 2px;
+        }
+
+            .identity-value.name {
+                color: #f5e0b0;
+                font-size: 1.7em;
+                text-shadow: 0 0 20px rgba(220, 180, 80, 0.5);
+            }
+
+        /* ========== 灵石样式（紧凑版，💎图标） ========== */
+        .lingshi-display {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 4px;
+            background: linear-gradient(135deg, rgba(200, 150, 40, 0.2), rgba(255, 215, 0, 0.08));
+            border: 1px solid rgba(255, 215, 0, 0.6);
+            border-radius: 12px;
+            padding: 1px 6px;
+            font-family: var(--font-title);
+            font-size: 0.85em;
+            color: #ffd700;
+            text-shadow: 0 0 8px rgba(255, 215, 0, 0.6);
+            box-shadow: 0 0 10px rgba(255, 215, 0, 0.2);
+            transition: all 0.3s ease;
+        }
+
+            .lingshi-display:hover {
+                box-shadow: 0 0 20px rgba(255, 215, 0, 0.4);
+                border-color: #ffd700;
+            }
+
+        .lingshi-icon {
+            font-size: 1em;
+            animation: lingshiGlow 2s ease-in-out infinite;
+        }
+
+        @keyframes lingshiGlow {
+            0%, 100% {
+                filter: drop-shadow(0 0 2px rgba(255, 215, 0, 0.5));
+            }
+
+            50% {
+                filter: drop-shadow(0 0 6px rgba(255, 215, 0, 0.9));
+            }
+        }
+
+        .lingshi-value {
+            font-weight: bold;
+        }
+
+        /* ========== 修为核心区 ========== */
+        .cultivation-core {
+            background: rgba(25, 18, 35, 0.5);
+            border-radius: 12px;
+            padding: 16px 20px;
+            margin-bottom: 20px;
+            border: 1px solid rgba(200, 160, 80, 0.3);
+            text-align: center;
+            position: relative;
+            z-index: 3;
+            box-shadow: inset 0 0 30px rgba(180, 140, 60, 0.06);
+        }
+
+        .cultivation-stage {
+            font-family: var(--font-title);
+            font-size: 2em;
+            color: #f5e0b0;
+            text-shadow: var(--glow-gold);
+            letter-spacing: 4px;
+            margin-bottom: 8px;
+        }
+
+        .cultivation-value-row {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+
+        .cultivation-label {
+            font-size: 0.8em;
+            color: rgba(220, 200, 160, 0.8);
+            letter-spacing: 2px;
+        }
+
+        .cultivation-number {
+            font-size: 1.8em;
+            color: #fff;
+            font-weight: bold;
+            text-shadow: 0 0 25px rgba(255, 255, 200, 0.5);
+            min-width: 50px;
+            transition: all 0.3s ease;
+        }
+
+            .cultivation-number.pop {
+                animation: popNumber 0.5s ease-out;
+            }
+
+        @keyframes popNumber {
+            0% {
+                transform: scale(1);
+            }
+
+            40% {
+                transform: scale(1.35);
+            }
+
+            100% {
+                transform: scale(1);
+            }
+        }
+
+        .progress-bar-container {
+            width: 75%;
+            max-width: 380px;
+            height: 7px;
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 4px;
+            margin: 8px auto 0;
+            overflow: hidden;
+            border: 1px solid rgba(200, 160, 80, 0.3);
+        }
+
+        .progress-bar-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #c9a050, #f0d080, #ffd700);
+            border-radius: 4px;
+            transition: width 0.8s cubic-bezier(0.4, 0, 0.2, 1);
+            box-shadow: 0 0 15px rgba(255, 215, 0, 0.6);
+        }
+
+        .progress-text {
+            font-size: 0.65em;
+            color: rgba(220, 200, 160, 0.6);
+            margin-top: 3px;
+            letter-spacing: 1px;
+        }
+
+        /* ========== 属性修炼区 ========== */
+        .attributes-section {
+            display: grid;
+            grid-template-columns: repeat(5, 1fr);
+            gap: 12px;
+            margin-bottom: 16px;
+            position: relative;
+            z-index: 3;
+        }
+
+        .attribute-card {
+            background: var(--card-bg);
+            border-radius: 10px;
+            padding: 14px 8px;
+            text-align: center;
+            border: 1px solid rgba(200, 160, 80, 0.2);
+            transition: all 0.3s ease;
+            cursor: pointer;
+            position: relative;
+            overflow: hidden;
+            user-select: none;
+        }
+
+            .attribute-card:hover {
+                border-color: rgba(220, 180, 80, 0.6);
+                box-shadow: 0 0 30px rgba(220, 180, 80, 0.3);
+                transform: translateY(-3px);
+                background: rgba(30, 24, 45, 0.85);
+            }
+
+            .attribute-card:active {
+                transform: scale(0.95);
+            }
+
+        .attribute-icon {
+            font-size: 1.6em;
+            margin-bottom: 2px;
+            display: block;
+            transition: all 0.3s ease;
+        }
+
+        .attribute-name {
+            font-family: var(--font-title);
+            font-size: 0.9em;
+            color: var(--text-light);
+            letter-spacing: 2px;
+            margin-bottom: 2px;
+        }
+
+        .attribute-value {
+            font-size: 1.4em;
+            font-weight: bold;
+            display: block;
+            transition: all 0.3s ease;
+        }
+
+        .attribute-hint {
+            display: block;
+            font-size: 0.55em;
+            color: rgba(200, 180, 150, 0.5);
+            letter-spacing: 1px;
+            margin-top: 2px;
+            margin-bottom: 2px;
+        }
+
+        .attribute-status {
+            display: inline-block;
+            padding: 4px 12px;
+            font-size: 0.65em;
+            color: #f5e0b0;
+            background: rgba(200, 150, 40, 0.15);
+            border: 1px solid rgba(220, 180, 80, 0.5);
+            border-radius: 12px;
+            letter-spacing: 1px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            margin-top: 6px;
+            min-width: 70px;
+            text-align: center;
+        }
+
+            .attribute-status:hover {
+                background: rgba(220, 180, 80, 0.2);
+                box-shadow: 0 0 10px rgba(220, 180, 80, 0.4);
+            }
+
+        .attribute-card.cultivating .attribute-status {
+            background: rgba(255, 215, 0, 0.2);
+            border-color: #ffd700;
+            color: #ffd700;
+            box-shadow: 0 0 15px rgba(255, 215, 0, 0.4);
+            animation: statusBlink 1s ease-in-out infinite;
+        }
+
+        @keyframes statusBlink {
+            0%, 100% {
+                opacity: 1;
+            }
+
+            50% {
+                opacity: 0.5;
+            }
+        }
+
+        .cancel-cultivation-btn {
+            position: absolute;
+            top: 4px;
+            left: 4px;
+            display: inline-block;
+            padding: 2px 6px;
+            font-size: 0.5em;
+            color: #ff6b6b;
+            background: rgba(255, 107, 107, 0.15);
+            border: 1px solid rgba(255, 107, 107, 0.4);
+            border-radius: 6px;
+            letter-spacing: 0.5px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            z-index: 5;
+        }
+
+            .cancel-cultivation-btn:hover {
+                background: rgba(255, 107, 107, 0.35);
+                box-shadow: 0 0 8px rgba(255, 107, 107, 0.5);
+                border-color: rgba(255, 107, 107, 0.7);
+            }
+
+        .attr-int .attribute-value {
+            color: var(--int-color);
+            text-shadow: 0 0 15px rgba(126, 184, 255, 0.5);
+        }
+
+        .attr-str .attribute-value {
+            color: var(--str-color);
+            text-shadow: 0 0 15px rgba(255, 126, 126, 0.5);
+        }
+
+        .attr-ord .attribute-value {
+            color: var(--ord-color);
+            text-shadow: 0 0 15px rgba(199, 184, 234, 0.5);
+        }
+
+        .attr-dex .attribute-value {
+            color: var(--dex-color);
+            text-shadow: 0 0 15px rgba(126, 240, 200, 0.5);
+        }
+
+        .attr-lck .attribute-value {
+            color: var(--lck-color);
+            text-shadow: 0 0 15px rgba(255, 215, 0, 0.6);
+        }
+
+        /* ========== 修炼中状态 ========== */
+        .attribute-card.cultivating {
+            border-color: rgba(255, 215, 0, 0.8);
+            box-shadow: 0 0 40px rgba(255, 215, 0, 0.4), inset 0 0 20px rgba(255, 215, 0, 0.1);
+            animation: cultivatingPulse 2s ease-in-out infinite;
+        }
+
+        @keyframes cultivatingPulse {
+            0%, 100% {
+                box-shadow: 0 0 40px rgba(255, 215, 0, 0.4), inset 0 0 20px rgba(255, 215, 0, 0.1);
+            }
+
+            50% {
+                box-shadow: 0 0 60px rgba(255, 215, 0, 0.7), inset 0 0 30px rgba(255, 215, 0, 0.2);
+            }
+        }
+
+        .attribute-card.cultivating .attribute-icon {
+            animation: iconFloat 1.5s ease-in-out infinite;
+        }
+
+        @keyframes iconFloat {
+            0%, 100% {
+                transform: translateY(0);
+            }
+
+            50% {
+                transform: translateY(-8px);
+            }
+        }
+
+        .attribute-card.cultivating::before {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            width: 120%;
+            height: 120%;
+            transform: translate(-50%, -50%);
+            background: radial-gradient(circle, rgba(255, 215, 0, 0.35) 0%, rgba(255, 215, 0, 0.1) 30%, transparent 70%);
+            animation: breathGlow 1.8s ease-in-out infinite;
+            pointer-events: none;
+        }
+
+        @keyframes breathGlow {
+            0%, 100% {
+                opacity: 0.3;
+                transform: translate(-50%, -50%) scale(1);
+            }
+
+            50% {
+                opacity: 0.8;
+                transform: translate(-50%, -50%) scale(1.15);
+            }
+        }
+
+        /* ========== 完成动画 ========== */
+        .attribute-card.completing {
+            animation: completeFlash 0.6s ease-out;
+        }
+
+        @keyframes completeFlash {
+            0% {
+                box-shadow: 0 0 60px rgba(255, 215, 0, 0.8), inset 0 0 40px rgba(255, 215, 0, 0.3);
+                transform: scale(1.1);
+            }
+
+            50% {
+                box-shadow: 0 0 80px rgba(255, 255, 255, 0.6), inset 0 0 50px rgba(255, 255, 255, 0.2);
+                transform: scale(1.2);
+            }
+
+            100% {
+                box-shadow: 0 0 30px rgba(220, 180, 80, 0.3);
+                transform: scale(1);
+            }
+        }
+
+        /* ========== 对话框样式 ========== */
+        .modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.7);
+            z-index: 1000;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            animation: fadeIn 0.2s ease;
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+            }
+
+            to {
+                opacity: 1;
+            }
+        }
+
+        .modal-box {
+            background: rgba(20, 15, 35, 0.95);
+            border: 2px solid rgba(220, 180, 80, 0.5);
+            border-radius: 14px;
+            padding: 24px 28px;
+            text-align: center;
+            box-shadow: 0 0 60px rgba(180, 140, 60, 0.4);
+            max-width: 400px;
+            width: 90%;
+            backdrop-filter: blur(20px);
+        }
+
+            .modal-box h3 {
+                font-family: var(--font-title);
+                color: #f5e0b0;
+                letter-spacing: 2px;
+                margin-bottom: 12px;
+                font-size: 1.2em;
+                text-shadow: 0 0 15px rgba(220, 180, 80, 0.4);
+            }
+
+        .modal-text {
+            font-size: 0.85em;
+            color: rgba(220, 200, 160, 0.8);
+            margin-bottom: 16px;
+            line-height: 1.5;
+        }
+
+        .modal-box textarea {
+            width: 100%;
+            background: rgba(30, 22, 45, 0.8);
+            border: 1px solid rgba(200, 160, 80, 0.35);
+            border-radius: 8px;
+            padding: 10px 12px;
+            color: #e8dcc8;
+            font-family: var(--font-body);
+            font-size: 0.85em;
+            resize: vertical;
+            outline: none;
+            transition: border-color 0.3s;
+            margin-bottom: 16px;
+        }
+
+            .modal-box textarea:focus {
+                border-color: rgba(255, 215, 0, 0.7);
+                box-shadow: 0 0 10px rgba(220, 180, 80, 0.2);
+            }
+
+        .modal-buttons {
+            display: flex;
+            gap: 10px;
+            justify-content: center;
+            flex-wrap: wrap;
+        }
+
+            .modal-buttons button {
+                padding: 7px 20px;
+                border-radius: 16px;
+                cursor: pointer;
+                letter-spacing: 2px;
+                font-family: var(--font-title);
+                font-size: 0.85em;
+                transition: all 0.3s;
+            }
+
+        #confirm-complete-btn {
+            background: rgba(220, 180, 80, 0.15);
+            border: 1px solid rgba(220, 180, 80, 0.5);
+            color: #ffd700;
+        }
+
+            #confirm-complete-btn:hover {
+                background: rgba(220, 180, 80, 0.25);
+                box-shadow: 0 0 15px rgba(220, 180, 80, 0.3);
+            }
+
+        #cancel-complete-btn {
+            background: transparent;
+            border: 1px solid rgba(180, 140, 100, 0.4);
+            color: #a09080;
+        }
+
+            #cancel-complete-btn:hover {
+                border-color: #c9a050;
+                color: #d4a843;
+            }
+
+        /* ========== 日志面板（下方独立区域） ========== */
+        .rizhi-panel {
+            background: var(--panel-bg);
+            border: 2px solid var(--border-subtle);
+            border-radius: 16px;
+            padding: 30px 35px;
+            position: relative;
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            box-shadow: 0 0 60px rgba(180, 140, 60, 0.25), 0 0 120px rgba(160, 120, 40, 0.18);
+            overflow: hidden;
+            margin-bottom: 20px;
+        }
+
+            .rizhi-panel::before {
+                content: '';
+                position: absolute;
+                top: 0;
+                left: 0;
+                right: 0;
+                bottom: 0;
+                border-radius: 16px;
+                border: 1px solid transparent;
+                background: linear-gradient(135deg, rgba(220, 180, 80, 0.25) 0%, transparent 25%, transparent 75%, rgba(180, 140, 60, 0.2) 100%) border-box;
+                -webkit-mask: linear-gradient(#fff 0 0) padding-box, linear-gradient(#fff 0 0);
+                -webkit-mask-composite: xor;
+                mask-composite: exclude;
+                pointer-events: none;
+            }
+
+        .rizhi-panel-content {
+            position: relative;
+            z-index: 3;
+        }
+
+        .rizhi-panel-header {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            margin-bottom: 16px;
+        }
+
+        .rizhi-panel-title {
+            font-family: var(--font-title);
+            font-size: 1.5em;
+            color: #f5e0b0;
+            letter-spacing: 3px;
+            text-shadow: 0 0 15px rgba(220, 180, 80, 0.4);
+        }
+
+        .rizhi-log-list {
+            max-height: 300px;
+            overflow-y: auto;
+            font-size: 0.7em;
+            color: rgba(220, 200, 160, 0.7);
+            line-height: 1.8;
+            letter-spacing: 1px;
+            scrollbar-width: thin;
+            scrollbar-color: rgba(200, 160, 80, 0.3) transparent;
+        }
+
+            .rizhi-log-list::-webkit-scrollbar {
+                width: 3px;
+            }
+
+            .rizhi-log-list::-webkit-scrollbar-track {
+                background: transparent;
+            }
+
+            .rizhi-log-list::-webkit-scrollbar-thumb {
+                background: rgba(200, 160, 80, 0.3);
+                border-radius: 2px;
+            }
+
+        .rizhi-log-item {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 4px 0;
+            border-bottom: 1px dashed rgba(200, 160, 80, 0.15);
+        }
+
+            .rizhi-log-item:last-child {
+                border-bottom: none;
+            }
+
+        .rizhi-log-time {
+            flex-shrink: 0;
+            min-width: 100px;
+            color: rgba(200, 160, 80, 0.7);
+            font-size: 0.9em;
+        }
+
+        .rizhi-log-icon {
+            flex-shrink: 0;
+            font-size: 1.2em;
+        }
+
+        .rizhi-log-record {
+            flex: 1;
+            word-break: break-all;
+        }
+
+        /* ========== 最近日志提示 ========== */
+        .recent-log-area {
+            text-align: center;
+            margin-top: 6px;
+            position: relative;
+            z-index: 3;
+        }
+
+        .recent-log-text {
+            font-size: 0.65em;
+            color: rgba(220, 200, 160, 0.5);
+            letter-spacing: 1px;
+        }
+
+        /* ========== 粒子特效 ========== */
+        .spirit-particle {
+            position: fixed;
+            pointer-events: none;
+            font-size: 0.8em;
+            color: #ffd700;
+            opacity: 0;
+            animation: floatUp 1.5s ease-out forwards;
+            z-index: 999;
+        }
+
+        @keyframes floatUp {
+            0% {
+                opacity: 1;
+                transform: translateY(0) scale(1);
+            }
+
+            100% {
+                opacity: 0;
+                transform: translateY(-120px) scale(0.3);
+            }
+        }
+
+        /* ========== 响应式设计 ========== */
+        @media (max-width: 750px) {
+            .attributes-section {
+                grid-template-columns: repeat(3, 1fr);
+            }
+
+            .identity-section {
+                gap: 15px;
+            }
+
+            .cultivation-stage {
+                font-size: 1.5em;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .attributes-section {
+                grid-template-columns: repeat(2, 1fr);
+            }
+
+            .cultivation-panel, .rizhi-panel {
+                padding: 22px 14px;
+            }
+        }
+    </style>
 </head>
 <body>
 
@@ -42,10 +1024,13 @@
         </div>
     </div>
 
-    <!-- 主面板（初始隐藏，登录后显示） -->
+    <!-- 主容器 -->
     <div id="main-container" class="main-container" style="display:none;">
-        <!-- ===== 修仙者信息面板 ===== -->
-        <div class="cultivation-panel" id="main-panel">
+
+        <!-- ===== 主面板（修炼视图） ===== -->
+        <div id="main-panel-view" class="cultivation-panel">
+            <button id="logout-btn" class="logout-btn">出 卷</button>
+
             <div class="corner-decoration corner-tl"></div>
             <div class="corner-decoration corner-tr"></div>
             <div class="corner-decoration corner-bl"></div>
@@ -57,36 +1042,44 @@
                 <div class="divider"></div>
             </div>
 
+            <!-- 身份信息区：顺序改为道号、道龄、境界、灵石，并集中居中 -->
             <div class="identity-section">
                 <div class="identity-item">
                     <div class="identity-label">道号</div>
                     <div class="identity-value name" id="dao-name">云 逸 真 人</div>
                 </div>
                 <div class="identity-item">
-                    <div class="identity-label">骨龄</div>
-                    <div class="identity-value" id="age-display">27</div>
+                    <div class="identity-label">道龄</div>
+                    <div class="identity-value" id="dao-age">0天</div>
                 </div>
                 <div class="identity-item">
                     <div class="identity-label">境界</div>
-                    <div class="identity-value" id="stage-display">练 气 期</div>
+                    <div class="identity-value" id="stage-display">炼气期</div>
+                </div>
+                <div class="identity-item">
+                    <div class="identity-label">灵石</div>
+                    <div class="lingshi-display" id="lingshi-display">
+                        <span class="lingshi-icon">💎</span>
+                        <span class="lingshi-value" id="lingshi-value">25</span>
+                    </div>
                 </div>
             </div>
 
             <div class="cultivation-core">
-                <div class="cultivation-stage" id="stage-name">练 气 期</div>
+                <div class="cultivation-stage" id="stage-name">炼气期1层</div>
                 <div class="cultivation-value-row">
                     <span class="cultivation-label">修 为 值</span>
                     <span class="cultivation-number" id="cultivation-value">47</span>
                 </div>
                 <div class="progress-bar-container">
-                    <div class="progress-bar-fill" id="progress-fill" style="width:47%;"></div>
+                    <div class="progress-bar-fill" id="progress-fill" style="width:4.7%;"></div>
                 </div>
-                <div class="progress-text" id="progress-text">距突破 筑基期 还需 53 修为</div>
+                <div class="progress-text" id="progress-text">距突破 筑基期 还需 953 修为</div>
             </div>
 
             <!-- 五项属性修炼区 -->
             <div class="attributes-section">
-                <div class="attribute-card attr-int" id="card-int" data-attribute="intelligence">
+                <div class="attribute-card attr-int" id="card-int" data-attribute="intelligence" data-type="11">
                     <span class="attribute-icon">📖</span>
                     <span class="attribute-name">智 力</span>
                     <span class="attribute-value" id="attr-int">12</span>
@@ -94,7 +1087,7 @@
                     <span class="attribute-status" id="status-int">开始修炼</span>
                     <span class="cancel-cultivation-btn" id="cancel-int" style="display:none;">取消</span>
                 </div>
-                <div class="attribute-card attr-str" id="card-str" data-attribute="strength">
+                <div class="attribute-card attr-str" id="card-str" data-attribute="strength" data-type="12">
                     <span class="attribute-icon">💪</span>
                     <span class="attribute-name">体 质</span>
                     <span class="attribute-value" id="attr-str">9</span>
@@ -102,7 +1095,7 @@
                     <span class="attribute-status" id="status-str">开始修炼</span>
                     <span class="cancel-cultivation-btn" id="cancel-str" style="display:none;">取消</span>
                 </div>
-                <div class="attribute-card attr-ord" id="card-ord" data-attribute="order">
+                <div class="attribute-card attr-ord" id="card-ord" data-attribute="order" data-type="13">
                     <span class="attribute-icon">📐</span>
                     <span class="attribute-name">秩 序</span>
                     <span class="attribute-value" id="attr-ord">14</span>
@@ -110,7 +1103,7 @@
                     <span class="attribute-status" id="status-ord">开始修炼</span>
                     <span class="cancel-cultivation-btn" id="cancel-ord" style="display:none;">取消</span>
                 </div>
-                <div class="attribute-card attr-dex" id="card-dex" data-attribute="dexterity">
+                <div class="attribute-card attr-dex" id="card-dex" data-attribute="dexterity" data-type="14">
                     <span class="attribute-icon">🍃</span>
                     <span class="attribute-name">灵 巧</span>
                     <span class="attribute-value" id="attr-dex">11</span>
@@ -118,7 +1111,7 @@
                     <span class="attribute-status" id="status-dex">开始修炼</span>
                     <span class="cancel-cultivation-btn" id="cancel-dex" style="display:none;">取消</span>
                 </div>
-                <div class="attribute-card attr-lck" id="card-lck" data-attribute="luck">
+                <div class="attribute-card attr-lck" id="card-lck" data-attribute="luck" data-type="15">
                     <span class="attribute-icon">🍀</span>
                     <span class="attribute-name">幸 运</span>
                     <span class="attribute-value" id="attr-lck">8</span>
@@ -132,8 +1125,572 @@
                 <span class="recent-log-text" id="recent-log">— 点击属性卡片开始修炼 —</span>
             </div>
         </div>
+
+        <!-- ===== 日志面板（下方独立区域） ===== -->
+        <div id="rizhi-panel-view" class="rizhi-panel">
+            <div class="corner-decoration corner-tl"></div>
+            <div class="corner-decoration corner-tr"></div>
+            <div class="corner-decoration corner-bl"></div>
+            <div class="corner-decoration corner-br"></div>
+            <div class="rizhi-panel-content">
+                <div class="rizhi-panel-header">
+                    <span class="rizhi-panel-title">📜 修 行 日 志</span>
+                </div>
+                <div class="rizhi-log-list" id="rizhi-log-list">
+                    <span style="color:rgba(200,160,80,0.3);">— 暂无修行记录 —</span>
+                </div>
+            </div>
+        </div>
+
     </div>
 
-    <script src="js/main.js"></script>
+    <script>
+        // ========== Supabase 初始化 ==========
+        const SUPABASE_URL = 'https://iejwqfiqdxhkdqjmwfki.supabase.co';
+        const SUPABASE_ANON_KEY = 'sb_publishable_uQdpBniIdCdBwzoukWJNjw_vWEyC396';
+        const mysupabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
+        // ========== 全局数据 ==========
+        let cultivationData = null;
+        let currentUser = null;
+        let rizhiLogs = [];
+
+        // ========== 大境界定义 ==========
+        const bigStages = [
+            { name: '炼气期', threshold: 0, nextThreshold: 1000 },
+            { name: '筑基期', threshold: 1000, nextThreshold: 3000 },
+            { name: '金丹期', threshold: 3000, nextThreshold: Infinity }
+        ];
+
+        // ========== 小境界定义 ==========
+        const smallStages = [
+            { name: '炼气期1层', min: 0, max: 9 },
+            { name: '炼气期2层', min: 10, max: 19 },
+            { name: '炼气期3层', min: 20, max: 29 },
+            { name: '炼气期4层', min: 30, max: 99 },
+            { name: '炼气期5层', min: 100, max: 199 },
+            { name: '炼气期6层', min: 200, max: 299 },
+            { name: '炼气期7层', min: 300, max: 499 },
+            { name: '炼气期8层', min: 500, max: 699 },
+            { name: '炼气期9层', min: 700, max: 899 },
+            { name: '炼气期大圆满', min: 900, max: 999 },
+            { name: '筑基前期', min: 1000, max: 1499 },
+            { name: '筑基中期', min: 1500, max: 1999 },
+            { name: '筑基后期', min: 2000, max: 2899 },
+            { name: '筑基后期', min: 2900, max: 2999 },
+            { name: '金丹期', min: 3000, max: Infinity }
+        ];
+
+        const attributeMap = {
+            intelligence: { short: 'int', name: '智力', icon: '📖', dbField: 'zhili', type: 11 },
+            strength: { short: 'str', name: '体质', icon: '💪', dbField: 'tizhi', type: 12 },
+            order: { short: 'ord', name: '秩序', icon: '📐', dbField: 'zhixu', type: 13 },
+            dexterity: { short: 'dex', name: '灵巧', icon: '🍃', dbField: 'lingqiao', type: 14 },
+            luck: { short: 'lck', name: '幸运', icon: '🍀', dbField: 'xingyun', type: 15 }
+        };
+
+        // ========== 粒子背景 ==========
+        const canvas = document.getElementById('particles-canvas');
+        const ctx = canvas.getContext('2d');
+        let particles = [];
+        const maxParticles = 75;
+
+        function resizeCanvas() { canvas.width = window.innerWidth; canvas.height = window.innerHeight; }
+        window.addEventListener('resize', resizeCanvas);
+        resizeCanvas();
+
+        class Particle {
+            constructor() { this.reset(); this.y = Math.random() * canvas.height; }
+            reset() {
+                this.x = Math.random() * canvas.width; this.y = -10;
+                this.size = Math.random() * 2 + 0.4;
+                this.speedY = Math.random() * 0.45 + 0.18;
+                this.speedX = (Math.random() - 0.5) * 0.25;
+                this.opacity = Math.random() * 0.5 + 0.2;
+                this.color = Math.random() < 0.5 ? `rgba(220,180,80,${this.opacity})` : `rgba(200,160,60,${this.opacity})`;
+                this.twinkleSpeed = Math.random() * 0.018 + 0.005;
+                this.twinklePhase = Math.random() * Math.PI * 2;
+            }
+            update() {
+                this.y += this.speedY;
+                this.x += this.speedX + Math.sin(this.y * 0.01 + this.twinklePhase) * 0.2;
+                if (this.y > canvas.height + 10 || this.x < -10 || this.x > canvas.width + 10) { this.reset(); this.y = -10; }
+                this.twinklePhase += this.twinkleSpeed;
+                this.currentOpacity = this.opacity * (0.55 + 0.45 * Math.sin(this.twinklePhase));
+            }
+            draw() {
+                ctx.beginPath(); ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2);
+                ctx.fillStyle = this.color.replace(/[\d.]+\)$/, `${this.currentOpacity})`); ctx.fill();
+                ctx.beginPath(); ctx.arc(this.x, this.y, this.size * 2.5, 0, Math.PI * 2);
+                ctx.fillStyle = this.color.replace(/[\d.]+\)$/, `${this.currentOpacity * 0.2})`); ctx.fill();
+            }
+        }
+
+        for (let i = 0; i < maxParticles; i++) particles.push(new Particle());
+
+        function animateParticles() {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            particles.forEach(p => { p.update(); p.draw(); });
+            for (let i = 0; i < particles.length; i++) {
+                for (let j = i + 1; j < particles.length; j++) {
+                    const dx = particles[i].x - particles[j].x;
+                    const dy = particles[i].y - particles[j].y;
+                    const dist = Math.sqrt(dx * dx + dy * dy);
+                    if (dist < 100) {
+                        ctx.beginPath(); ctx.moveTo(particles[i].x, particles[i].y); ctx.lineTo(particles[j].x, particles[j].y);
+                        ctx.strokeStyle = `rgba(200,160,80,${0.06 * (1 - dist / 100)})`; ctx.lineWidth = 0.5; ctx.stroke();
+                    }
+                }
+            }
+            requestAnimationFrame(animateParticles);
+        }
+        animateParticles();
+
+        // ========== 工具函数 ==========
+        function getBigStageIndex(xiuwei) {
+            for (let i = bigStages.length - 1; i >= 0; i--) {
+                if (xiuwei >= bigStages[i].threshold) return i;
+            }
+            return 0;
+        }
+
+        function getCurrentBigStage() { return bigStages[cultivationData.stageIndex]; }
+        function getNextBigStage() {
+            const idx = cultivationData.stageIndex;
+            return idx < bigStages.length - 1 ? bigStages[idx + 1] : null;
+        }
+
+        function getSmallStageName(xiuwei) {
+            for (const stage of smallStages) {
+                if (xiuwei >= stage.min && xiuwei <= stage.max) {
+                    return stage.name;
+                }
+            }
+            return '未知境界';
+        }
+
+        function getDaoAge(createtime) {
+            const diffMs = new Date() - new Date(createtime);
+            return Math.max(0, Math.floor(diffMs / (1000 * 60 * 60 * 24)));
+        }
+
+        function formatTime(timeStr) { return new Date(timeStr).toLocaleString('zh-CN', { hour12: false }); }
+        function escapeHtml(str) {
+            const div = document.createElement('div');
+            div.textContent = str;
+            return div.innerHTML;
+        }
+
+        // ========== UI 更新 ==========
+        function updateUI(animateValue = false) {
+            const bigStage = getCurrentBigStage();
+            const nextBigStage = getNextBigStage();
+            const cv = cultivationData.cultivationValue;
+            const smallStageName = getSmallStageName(cv);
+
+            document.getElementById('dao-name').textContent = cultivationData.daoName;
+            document.getElementById('lingshi-value').textContent = cultivationData.spiritStones;
+            document.getElementById('stage-display').textContent = bigStage.name;
+            document.getElementById('stage-name').textContent = smallStageName;
+            document.getElementById('dao-age').textContent = currentUser && currentUser.createtime ? getDaoAge(currentUser.createtime) + '天' : '0天';
+
+            const cvEl = document.getElementById('cultivation-value');
+            cvEl.textContent = cv;
+            if (animateValue) { cvEl.classList.remove('pop'); void cvEl.offsetWidth; cvEl.classList.add('pop'); }
+
+            let pp, rt;
+            if (nextBigStage) {
+                const range = nextBigStage.threshold - bigStage.threshold;
+                const progress = cv - bigStage.threshold;
+                pp = Math.min(100, Math.max(0, (progress / range) * 100));
+                rt = `距突破 ${nextBigStage.name} 还需 ${nextBigStage.threshold - cv} 修为`;
+            } else {
+                pp = 100;
+                rt = '已达当前最高境界 · 超凡入圣';
+            }
+
+            document.getElementById('progress-fill').style.width = pp + '%';
+            document.getElementById('progress-text').textContent = rt;
+
+            document.getElementById('attr-int').textContent = cultivationData.attributes.intelligence;
+            document.getElementById('attr-str').textContent = cultivationData.attributes.strength;
+            document.getElementById('attr-ord').textContent = cultivationData.attributes.order;
+            document.getElementById('attr-dex').textContent = cultivationData.attributes.dexterity;
+            document.getElementById('attr-lck').textContent = cultivationData.attributes.luck;
+
+            updateCultivationStatus();
+        }
+
+        function updateCultivationStatus() {
+            Object.keys(attributeMap).forEach(attr => {
+                const short = attributeMap[attr].short;
+                const statusEl = document.getElementById(`status-${short}`);
+                const cardEl = document.getElementById(`card-${short}`);
+                const cancelBtn = document.getElementById(`cancel-${short}`);
+                if (cultivationData.cultivatingAttribute === attr) {
+                    statusEl.textContent = '修炼完成';
+                    cardEl.classList.add('cultivating');
+                    if (cancelBtn) cancelBtn.style.display = 'inline-block';
+                } else {
+                    statusEl.textContent = '开始修炼';
+                    cardEl.classList.remove('cultivating');
+                    if (cancelBtn) cancelBtn.style.display = 'none';
+                }
+            });
+        }
+
+        function setRecentLog(text) { document.getElementById('recent-log').textContent = text; }
+
+        // ========== 修行日志 ==========
+        async function fetchRizhiLogs() {
+            if (!currentUser) return;
+            const { data, error } = await mysupabase
+                .from('rizhi').select('*').eq('number', currentUser.number).order('time', { ascending: true });
+            if (error) { console.error('获取日志失败:', error); return; }
+            rizhiLogs = data || [];
+            renderRizhiLogs();
+        }
+
+        function renderRizhiLogs() {
+            const container = document.getElementById('rizhi-log-list');
+            if (!container) return;
+            if (rizhiLogs.length === 0) {
+                container.innerHTML = '<span style="color:rgba(200,160,80,0.3);">— 暂无修行记录 —</span>';
+                return;
+            }
+            const typeIconMap = {};
+            Object.values(attributeMap).forEach(attr => {
+                typeIconMap[attr.type] = attr.icon;
+            });
+
+            container.innerHTML = rizhiLogs.map(log => {
+                const icon = typeIconMap[log.type] || '📌';
+                return `<div class="rizhi-log-item">
+                            <span class="rizhi-log-time">${escapeHtml(formatTime(log.time))}</span>
+                            <span class="rizhi-log-icon">${icon}</span>
+                            <span class="rizhi-log-record">${escapeHtml(log.record)}</span>
+                        </div>`;
+            }).join('');
+        }
+
+        // ========== 粒子特效 ==========
+        function spawnSpiritParticles(sourceElement, text, count = 8) {
+            const rect = sourceElement.getBoundingClientRect();
+            const cx = rect.left + rect.width / 2;
+            const cy = rect.top + rect.height / 2;
+            for (let i = 0; i < count; i++) {
+                const particle = document.createElement('span');
+                particle.className = 'spirit-particle';
+                particle.textContent = text;
+                particle.style.left = cx + (Math.random() - 0.5) * 60 + 'px';
+                particle.style.top = cy + (Math.random() - 0.5) * 40 + 'px';
+                particle.style.fontSize = (Math.random() * 0.5 + 0.7) + 'em';
+                document.body.appendChild(particle);
+                particle.addEventListener('animationend', () => particle.remove());
+            }
+        }
+
+        // ========== 属性修炼逻辑 ==========
+        let pendingCompleteAttribute = null;
+
+        function handleAttributeClick(event) {
+            const card = event.currentTarget;
+            const attribute = card.dataset.attribute;
+            const target = event.target;
+            if (target.classList.contains('cancel-cultivation-btn')) return;
+            if (target.classList.contains('attribute-status')) {
+                if (cultivationData.cultivatingAttribute === attribute) openCompleteModal(attribute);
+                else if (cultivationData.cultivatingAttribute === null) startCultivation(attribute, card);
+                else {
+                    const currentAttr = cultivationData.cultivatingAttribute;
+                    setRecentLog(`⚠️ 正在修炼${attributeMap[currentAttr].name}，请先完成当前修炼或取消`);
+                    const currentCard = document.getElementById(`card-${attributeMap[currentAttr].short}`);
+                    if (currentCard) { currentCard.style.animation = 'shake 0.5s ease'; currentCard.addEventListener('animationend', () => { currentCard.style.animation = ''; }, { once: true }); }
+                }
+                return;
+            }
+            if (cultivationData.cultivatingAttribute === null) startCultivation(attribute, card);
+            else if (cultivationData.cultivatingAttribute === attribute) setRecentLog(`请点击"修炼完成"按钮完成${attributeMap[attribute].name}修炼`);
+            else setRecentLog(`⚠️ 正在修炼${attributeMap[cultivationData.cultivatingAttribute]?.name}，请先完成或取消`);
+        }
+
+        function startCultivation(attribute, card) {
+            cultivationData.cultivatingAttribute = attribute;
+            updateCultivationStatus();
+            const attrInfo = attributeMap[attribute];
+            setRecentLog(`🧘 开始修炼${attrInfo.name}... 达成1小时后点击"修炼完成"按钮`);
+            spawnSpiritParticles(card, attrInfo.icon, 5);
+        }
+
+        function openCompleteModal(attribute) {
+            pendingCompleteAttribute = attribute;
+            document.getElementById('cultivation-note').value = '';
+            document.getElementById('cultivation-complete-modal').style.display = 'flex';
+        }
+
+        function closeCompleteModal() {
+            document.getElementById('cultivation-complete-modal').style.display = 'none';
+            pendingCompleteAttribute = null;
+        }
+
+        function confirmComplete() {
+            if (!pendingCompleteAttribute) return;
+            const attribute = pendingCompleteAttribute;
+            const note = document.getElementById('cultivation-note').value.trim();
+            const card = document.getElementById(`card-${attributeMap[attribute].short}`);
+            closeCompleteModal();
+            completeCultivation(attribute, card, note);
+        }
+
+        async function completeCultivation(attribute, card, note = '') {
+            cultivationData.attributes[attribute] += 1;
+            cultivationData.cultivationValue += 1;
+            cultivationData.cultivatingAttribute = null;
+
+            const oldStageIndex = cultivationData.stageIndex;
+            const newStageIndex = getBigStageIndex(cultivationData.cultivationValue);
+            let brokeThrough = false;
+            if (newStageIndex !== oldStageIndex) {
+                cultivationData.stageIndex = newStageIndex;
+                brokeThrough = true;
+            }
+
+            updateUI(true);
+
+            const attrInfo = attributeMap[attribute];
+            let record = `完成${attrInfo.name}修炼，${attrInfo.name}+1，修为+1`;
+            if (note) record += `，修炼痕迹：${note}`;
+            setRecentLog('✨ ' + record);
+
+            card.classList.add('completing');
+            setTimeout(() => card.classList.remove('completing'), 600);
+            spawnSpiritParticles(card, '+1', 10);
+
+            if (brokeThrough) triggerBreakthrough();
+
+            if (currentUser) {
+                const { error: insertError } = await mysupabase
+                    .from('rizhi').insert([{ number: currentUser.number, time: new Date().toISOString(), type: attrInfo.type, record: record }]);
+                if (insertError) console.error('插入日志失败:', insertError);
+            }
+
+            await updateUserData();
+            await fetchRizhiLogs();
+        }
+
+        function cancelCultivation(attribute) {
+            if (cultivationData.cultivatingAttribute !== attribute) return;
+            cultivationData.cultivatingAttribute = null;
+            updateCultivationStatus();
+            const attrInfo = attributeMap[attribute];
+            setRecentLog(`🚫 已取消${attrInfo.name}的修炼，无任何收益`);
+            const card = document.getElementById(`card-${attributeMap[attribute].short}`);
+            if (card) spawnSpiritParticles(card, '取消', 3);
+        }
+
+        function triggerBreakthrough() {
+            const panel = document.getElementById('main-panel-view');
+            panel.classList.add('breakthrough-flash');
+            setTimeout(() => panel.classList.remove('breakthrough-flash'), 600);
+            setRecentLog(`🌟 突破！晋升 ${getCurrentBigStage().name}！`);
+        }
+
+        // ========== 数据库操作 ==========
+        async function updateUserData() {
+            if (!currentUser || !cultivationData) return;
+            const dbUpdates = {
+                xiuwei: cultivationData.cultivationValue,
+                lingshi: cultivationData.spiritStones,
+                zhili: cultivationData.attributes.intelligence,
+                tizhi: cultivationData.attributes.strength,
+                zhixu: cultivationData.attributes.order,
+                lingqiao: cultivationData.attributes.dexterity,
+                xingyun: cultivationData.attributes.luck
+            };
+            const { error } = await mysupabase.from('users').update(dbUpdates).eq('name', currentUser.name);
+            if (error) console.error('更新用户数据失败:', error);
+        }
+
+        // ========== 登录/注册/登出 ==========
+        function mapUserToCultivationData(user) {
+            const stageIndex = getBigStageIndex(user.xiuwei || 0);
+            return {
+                daoName: user.name,
+                cultivationValue: user.xiuwei || 0,
+                stageIndex: stageIndex,
+                spiritStones: user.lingshi || 0,
+                attributes: {
+                    intelligence: user.zhili || 0,
+                    strength: user.tizhi || 0,
+                    order: user.zhixu || 0,
+                    dexterity: user.lingqiao || 0,
+                    luck: user.xingyun || 0
+                },
+                cultivatingAttribute: null
+            };
+        }
+
+        function getCachedUser() { const c = localStorage.getItem('current_user'); return c ? JSON.parse(c) : null; }
+        function setCachedUser(user) { localStorage.setItem('current_user', JSON.stringify({ name: user.name, number: user.number })); }
+        function clearCachedUser() { localStorage.removeItem('current_user'); }
+
+        async function checkAutoLogin() {
+            const cachedUser = getCachedUser();
+            if (!cachedUser || !cachedUser.name) { showLogin(); return; }
+            const { data: user, error } = await mysupabase.from('users').select('*').eq('name', cachedUser.name).maybeSingle();
+            if (error || !user) { clearCachedUser(); showLogin(); return; }
+            currentUser = user;
+            cultivationData = mapUserToCultivationData(user);
+            await fetchRizhiLogs();
+            enterMainPanel();
+        }
+
+        function showLogin() {
+            document.getElementById('login-overlay').style.display = 'flex';
+            document.getElementById('main-container').style.display = 'none';
+            document.getElementById('login-message').textContent = '';
+            document.getElementById('login-dao-name').value = '';
+            document.getElementById('login-spirit-mark').value = '';
+        }
+
+        function enterMainPanel() {
+            document.getElementById('login-overlay').style.display = 'none';
+            document.getElementById('main-container').style.display = 'block';
+            if (!window._mainPanelInitialized) { initMainPanel(); window._mainPanelInitialized = true; }
+            updateUI();
+            setRecentLog('点击属性卡片开始修炼，修炼达成后点击"修炼完成"按钮');
+        }
+
+        async function handleLogin() {
+            const daoName = document.getElementById('login-dao-name').value.trim();
+            const password = document.getElementById('login-spirit-mark').value.trim();
+            const messageEl = document.getElementById('login-message');
+            const loginBtn = document.getElementById('login-btn');
+
+            if (!daoName || !password) { messageEl.textContent = '道号和神纹均不能为空'; return; }
+            loginBtn.disabled = true;
+            messageEl.textContent = '正在入卷...';
+
+            try {
+                const { data: user, error: queryError } = await mysupabase.from('users').select('*').eq('name', daoName).maybeSingle();
+                if (queryError) throw queryError;
+
+                if (user) {
+                    if (user.password !== password) {
+                        const spiritInput = document.getElementById('login-spirit-mark');
+                        spiritInput.value = '';
+                        messageEl.textContent = '道友神纹匹配失败';
+                        spawnSpiritParticles(spiritInput, '❌ 神纹错误', 10);
+                        spiritInput.style.animation = 'shake 0.5s ease';
+                        spiritInput.addEventListener('animationend', () => { spiritInput.style.animation = ''; }, { once: true });
+                        return;
+                    }
+                    currentUser = user;
+                    cultivationData = mapUserToCultivationData(user);
+                    setCachedUser(user);
+                    await fetchRizhiLogs();
+                    messageEl.textContent = '登录成功，欢迎回来！';
+                    enterMainPanel();
+                } else {
+                    const { data: maxData } = await mysupabase.from('users').select('number').order('number', { ascending: false }).limit(1);
+                    let newNumber = 1;
+                    if (maxData && maxData.length > 0) newNumber = maxData[0].number + 1;
+
+                    const newUser = {
+                        number: newNumber, name: daoName, password: password,
+                        createtime: new Date().toISOString(),
+                        xiuwei: 47, lingshi: 25, zhili: 12, tizhi: 9, zhixu: 14, lingqiao: 11, xingyun: 8
+                    };
+                    const { data: insertedUser, error: insertError } = await mysupabase.from('users').insert([newUser]).select().single();
+                    if (insertError) throw insertError;
+
+                    currentUser = insertedUser;
+                    cultivationData = mapUserToCultivationData(insertedUser);
+                    setCachedUser(insertedUser);
+                    await fetchRizhiLogs();
+
+                    messageEl.textContent = '恭喜新道友入卷！';
+                    spawnSpiritParticles(document.getElementById('login-btn'), '🎉 入卷', 12);
+                    setTimeout(() => enterMainPanel(), 800);
+                }
+            } catch (err) {
+                console.error('登录/注册异常:', err);
+                messageEl.textContent = '网络错误，请稍后再试';
+            } finally {
+                loginBtn.disabled = false;
+            }
+        }
+
+        function handleLogout() {
+            clearCachedUser();
+            currentUser = null;
+            cultivationData = null;
+            rizhiLogs = [];
+            showLogin();
+        }
+
+        // ========== 主面板初始化 ==========
+        function initMainPanel() {
+            document.getElementById('logout-btn').addEventListener('click', handleLogout);
+
+            document.querySelectorAll('.attribute-card').forEach(card => card.addEventListener('click', handleAttributeClick));
+
+            document.querySelectorAll('.cancel-cultivation-btn').forEach(btn => {
+                btn.addEventListener('click', function (e) {
+                    e.stopPropagation();
+                    const short = this.id.replace('cancel-', '');
+                    const attribute = Object.keys(attributeMap).find(key => attributeMap[key].short === short);
+                    if (attribute) cancelCultivation(attribute);
+                });
+            });
+
+            document.querySelectorAll('.attribute-status').forEach(statusBtn => {
+                statusBtn.addEventListener('click', function (e) {
+                    e.stopPropagation();
+                    const card = this.closest('.attribute-card');
+                    if (card) handleAttributeClick({ currentTarget: card, target: this });
+                });
+            });
+
+            document.getElementById('confirm-complete-btn').addEventListener('click', confirmComplete);
+            document.getElementById('cancel-complete-btn').addEventListener('click', closeCompleteModal);
+            document.getElementById('cultivation-complete-modal').addEventListener('click', function (e) { if (e.target === this) closeCompleteModal(); });
+
+            document.addEventListener('keydown', handleKeydown);
+        }
+
+        function handleKeydown(e) {
+            const keyMap = { 'Digit1': 'intelligence', 'Digit2': 'strength', 'Digit3': 'order', 'Digit4': 'dexterity', 'Digit5': 'luck' };
+            if (keyMap[e.code]) {
+                e.preventDefault();
+                const attribute = keyMap[e.code];
+                const short = attributeMap[attribute].short;
+                const card = document.getElementById(`card-${short}`);
+                if (card) handleAttributeClick({ currentTarget: card, target: card });
+            }
+            if (e.code === 'Escape') {
+                if (pendingCompleteAttribute) closeCompleteModal();
+                else if (cultivationData && cultivationData.cultivatingAttribute) cancelCultivation(cultivationData.cultivatingAttribute);
+            }
+        }
+
+        // ========== 初始化 ==========
+        function init() {
+            document.getElementById('login-btn').addEventListener('click', handleLogin);
+            document.getElementById('login-spirit-mark').addEventListener('keypress', function (e) { if (e.key === 'Enter') handleLogin(); });
+            checkAutoLogin();
+        }
+
+        // 添加 shake 动画
+        const style = document.createElement('style');
+        style.textContent = `
+            @keyframes shake { 0%, 100% { transform: translateX(0); } 20% { transform: translateX(-5px); } 40% { transform: translateX(5px); } 60% { transform: translateX(-3px); } 80% { transform: translateX(3px); } }
+            .breakthrough-flash { animation: flashGold 0.6s ease-out; }
+            @keyframes flashGold { 0% { box-shadow: 0 0 60px rgba(180, 140, 60, 0.25); } 50% { box-shadow: 0 0 150px rgba(255, 215, 0, 0.8); } 100% { box-shadow: 0 0 60px rgba(180, 140, 60, 0.25); } }
+        `;
+        document.head.appendChild(style);
+
+        init();
+    </script>
 </body>
 </html>

@@ -1,6 +1,8 @@
 ﻿// ========== 用户数据管理 ==========
 const STORAGE_KEY = 'cultivation_users';
 
+
+
 function loadUsers() {
     const data = localStorage.getItem(STORAGE_KEY);
     return data ? JSON.parse(data) : {};

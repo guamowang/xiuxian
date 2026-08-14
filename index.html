@@ -82,6 +82,7 @@
             max-width: 350px;
             width: 90%;
             backdrop-filter: blur(20px);
+            position: relative;
         }
 
         .login-title {
@@ -166,6 +167,13 @@
             color: rgba(220, 200, 160, 0.7);
             margin-top: 10px;
             min-height: 1.2em;
+            letter-spacing: 1px;
+        }
+
+        .version-text {
+            margin-top: 12px;
+            font-size: 0.6em;
+            color: rgba(220, 200, 160, 0.4);
             letter-spacing: 1px;
         }
 
@@ -311,12 +319,12 @@
             opacity: 0.7;
         }
 
-        /* ========== 身份信息区（修改：集中居中） ========== */
+        /* ========== 身份信息区（集中、紧凑） ========== */
         .identity-section {
             display: flex;
-            justify-content: center; /* 水平居中 */
+            justify-content: center;
             align-items: center;
-            gap: 30px; /* 适当间距 */
+            gap: 12px; /* 间距从30px缩小到12px */
             margin-bottom: 18px;
             flex-wrap: wrap;
             position: relative;
@@ -324,9 +332,9 @@
         }
 
         .identity-item {
-            flex: 0 0 auto; /* 不伸展，保持内容宽度 */
+            flex: 0 0 auto;
             text-align: center;
-            min-width: 80px; /* 保证标签对齐的最小宽度 */
+            min-width: 60px; /* 最小宽度缩小 */
         }
 
         .identity-label {
@@ -348,6 +356,12 @@
                 font-size: 1.7em;
                 text-shadow: 0 0 20px rgba(220, 180, 80, 0.5);
             }
+
+        /* 境界文字蓝色 */
+        #stage-display {
+            color: #7eb8ff;
+            text-shadow: 0 0 15px rgba(126, 184, 255, 0.5);
+        }
 
         /* ========== 灵石样式（紧凑版，💎图标） ========== */
         .lingshi-display {
@@ -637,6 +651,7 @@
             border-color: rgba(255, 215, 0, 0.8);
             box-shadow: 0 0 40px rgba(255, 215, 0, 0.4), inset 0 0 20px rgba(255, 215, 0, 0.1);
             animation: cultivatingPulse 2s ease-in-out infinite;
+            background: linear-gradient(135deg, rgba(200, 160, 80, 0.25), rgba(255, 215, 0, 0.1));
         }
 
         @keyframes cultivatingPulse {
@@ -776,6 +791,7 @@
             outline: none;
             transition: border-color 0.3s;
             margin-bottom: 16px;
+            inputmode: text;
         }
 
             .modal-box textarea:focus {
@@ -822,7 +838,7 @@
                 color: #d4a843;
             }
 
-        /* ========== 日志面板（下方独立区域） ========== */
+        /* ========== 日志面板 ========== */
         .rizhi-panel {
             background: var(--panel-bg);
             border: 2px solid var(--border-subtle);
@@ -939,6 +955,14 @@
             letter-spacing: 1px;
         }
 
+        .main-version {
+            text-align: center;
+            margin-top: 10px;
+            font-size: 0.6em;
+            color: rgba(220, 200, 160, 0.4);
+            letter-spacing: 1px;
+        }
+
         /* ========== 粒子特效 ========== */
         .spirit-particle {
             position: fixed;
@@ -969,7 +993,7 @@
             }
 
             .identity-section {
-                gap: 15px;
+                gap: 8px;
             }
 
             .cultivation-stage {
@@ -1008,6 +1032,7 @@
             </div>
             <button id="login-btn" class="login-btn">入 卷</button>
             <div id="login-message" class="login-message"></div>
+            <div class="version-text">v1.02</div>
         </div>
     </div>
 
@@ -1016,7 +1041,8 @@
         <div class="modal-box">
             <h3>修炼完成确认</h3>
             <p class="modal-text">道友，请确保对应属性修炼已达成1小时，才能算完成一次修炼，请道友留下修炼痕迹</p>
-            <textarea id="cultivation-note" placeholder="请输入修炼痕迹..." rows="4"></textarea>
+            <textarea id="cultivation-note" placeholder="请输入修炼痕迹..." rows="4" inputmode="text"></textarea>
+            <div id="cultivation-note-error" style="display:none; color:#ff6b6b; font-size:0.7em; margin-bottom: 8px;">⚠️ 修炼痕迹不能为空</div>
             <div class="modal-buttons">
                 <button id="confirm-complete-btn">确认完成</button>
                 <button id="cancel-complete-btn">取消</button>
@@ -1027,7 +1053,7 @@
     <!-- 主容器 -->
     <div id="main-container" class="main-container" style="display:none;">
 
-        <!-- ===== 主面板（修炼视图） ===== -->
+        <!-- ===== 主面板 ===== -->
         <div id="main-panel-view" class="cultivation-panel">
             <button id="logout-btn" class="logout-btn">出 卷</button>
 
@@ -1042,7 +1068,7 @@
                 <div class="divider"></div>
             </div>
 
-            <!-- 身份信息区：顺序改为道号、道龄、境界、灵石，并集中居中 -->
+            <!-- 身份信息区：道号、道龄、境界、灵石 -->
             <div class="identity-section">
                 <div class="identity-item">
                     <div class="identity-label">道号</div>
@@ -1124,9 +1150,10 @@
             <div class="recent-log-area">
                 <span class="recent-log-text" id="recent-log">— 点击属性卡片开始修炼 —</span>
             </div>
+            <div class="main-version">v1.02</div>
         </div>
 
-        <!-- ===== 日志面板（下方独立区域） ===== -->
+        <!-- ===== 日志面板 ===== -->
         <div id="rizhi-panel-view" class="rizhi-panel">
             <div class="corner-decoration corner-tl"></div>
             <div class="corner-decoration corner-tr"></div>
@@ -1425,6 +1452,7 @@
         function openCompleteModal(attribute) {
             pendingCompleteAttribute = attribute;
             document.getElementById('cultivation-note').value = '';
+            document.getElementById('cultivation-note-error').style.display = 'none';
             document.getElementById('cultivation-complete-modal').style.display = 'flex';
         }
 
@@ -1435,8 +1463,16 @@
 
         function confirmComplete() {
             if (!pendingCompleteAttribute) return;
-            const attribute = pendingCompleteAttribute;
             const note = document.getElementById('cultivation-note').value.trim();
+            if (!note) {
+                const errorEl = document.getElementById('cultivation-note-error');
+                errorEl.style.display = 'block';
+                const textarea = document.getElementById('cultivation-note');
+                textarea.style.animation = 'shake 0.5s ease';
+                textarea.addEventListener('animationend', () => { textarea.style.animation = ''; }, { once: true });
+                return;
+            }
+            const attribute = pendingCompleteAttribute;
             const card = document.getElementById(`card-${attributeMap[attribute].short}`);
             closeCompleteModal();
             completeCultivation(attribute, card, note);
@@ -1655,23 +1691,6 @@
             document.getElementById('confirm-complete-btn').addEventListener('click', confirmComplete);
             document.getElementById('cancel-complete-btn').addEventListener('click', closeCompleteModal);
             document.getElementById('cultivation-complete-modal').addEventListener('click', function (e) { if (e.target === this) closeCompleteModal(); });
-
-            document.addEventListener('keydown', handleKeydown);
-        }
-
-        function handleKeydown(e) {
-            const keyMap = { 'Digit1': 'intelligence', 'Digit2': 'strength', 'Digit3': 'order', 'Digit4': 'dexterity', 'Digit5': 'luck' };
-            if (keyMap[e.code]) {
-                e.preventDefault();
-                const attribute = keyMap[e.code];
-                const short = attributeMap[attribute].short;
-                const card = document.getElementById(`card-${short}`);
-                if (card) handleAttributeClick({ currentTarget: card, target: card });
-            }
-            if (e.code === 'Escape') {
-                if (pendingCompleteAttribute) closeCompleteModal();
-                else if (cultivationData && cultivationData.cultivatingAttribute) cancelCultivation(cultivationData.cultivatingAttribute);
-            }
         }
 
         // ========== 初始化 ==========

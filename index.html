@@ -213,7 +213,7 @@
             }
 
         /* ========== 面板样式 ========== */
-        .cultivation-panel, .rizhi-panel {
+        .cultivation-panel, .rizhi-panel, .four-arts-panel {
             background: var(--panel-bg);
             border: 2px solid var(--border-subtle);
             border-radius: 16px;
@@ -227,7 +227,7 @@
             margin-bottom: 20px;
         }
 
-            .cultivation-panel::before, .rizhi-panel::before {
+            .cultivation-panel::before, .rizhi-panel::before, .four-arts-panel::before {
                 content: '';
                 position: absolute;
                 top: 0;
@@ -324,7 +324,7 @@
             display: flex;
             justify-content: center;
             align-items: center;
-            gap: 12px; /* 间距从30px缩小到12px */
+            gap: 12px;
             margin-bottom: 18px;
             flex-wrap: wrap;
             position: relative;
@@ -334,7 +334,7 @@
         .identity-item {
             flex: 0 0 auto;
             text-align: center;
-            min-width: 60px; /* 最小宽度缩小 */
+            min-width: 60px;
         }
 
         .identity-label {
@@ -647,7 +647,7 @@
         }
 
         /* ========== 修炼中状态 ========== */
-        .attribute-card.cultivating {
+        .attribute-card.cultivating, .four-art-card.cultivating {
             border-color: rgba(255, 215, 0, 0.8);
             box-shadow: 0 0 40px rgba(255, 215, 0, 0.4), inset 0 0 20px rgba(255, 215, 0, 0.1);
             animation: cultivatingPulse 2s ease-in-out infinite;
@@ -664,7 +664,7 @@
             }
         }
 
-        .attribute-card.cultivating .attribute-icon {
+        .attribute-card.cultivating .attribute-icon, .four-art-card.cultivating .four-art-icon {
             animation: iconFloat 1.5s ease-in-out infinite;
         }
 
@@ -678,7 +678,7 @@
             }
         }
 
-        .attribute-card.cultivating::before {
+        .attribute-card.cultivating::before, .four-art-card.cultivating::before {
             content: '';
             position: absolute;
             top: 50%;
@@ -703,8 +703,252 @@
             }
         }
 
+        /* ========== 四艺模块样式 ========== */
+        .four-arts-section {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 12px;
+            margin-top: 20px;
+            position: relative;
+            z-index: 3;
+        }
+
+        .four-art-card {
+            background: var(--card-bg);
+            border-radius: 10px;
+            padding: 16px 10px;
+            text-align: center;
+            border: 1px solid rgba(200, 160, 80, 0.2);
+            transition: all 0.3s ease;
+            cursor: pointer;
+            position: relative;
+            overflow: hidden;
+            user-select: none;
+        }
+
+            .four-art-card:hover {
+                border-color: rgba(220, 180, 80, 0.6);
+                box-shadow: 0 0 30px rgba(220, 180, 80, 0.3);
+                transform: translateY(-3px);
+                background: rgba(30, 24, 45, 0.85);
+            }
+
+        .four-art-icon {
+            font-size: 2em;
+            display: block;
+            margin-bottom: 4px;
+        }
+
+        .four-art-name {
+            font-family: var(--font-title);
+            font-size: 1em;
+            color: #f5e0b0;
+            letter-spacing: 2px;
+            margin-bottom: 2px;
+        }
+
+        .four-art-desc {
+            font-size: 0.6em;
+            color: rgba(220, 200, 160, 0.6);
+            margin-bottom: 8px;
+            line-height: 1.4;
+        }
+
+        .four-art-count {
+            display: inline-block;
+            font-size: 0.65em;
+            color: rgba(220, 180, 80, 0.7);
+            margin-top: 4px;
+            cursor: pointer;
+            text-decoration: underline;
+            letter-spacing: 1px;
+        }
+
+        .four-art-btn {
+            background: rgba(200, 150, 40, 0.15);
+            border: 1px solid rgba(220, 180, 80, 0.5);
+            color: #d4a843;
+            font-family: var(--font-title);
+            font-size: 0.8em;
+            padding: 5px 14px;
+            border-radius: 16px;
+            cursor: pointer;
+            letter-spacing: 1px;
+            transition: all 0.3s ease;
+            margin-top: 4px;
+        }
+
+            .four-art-btn:hover {
+                background: rgba(220, 180, 80, 0.25);
+                box-shadow: 0 0 12px rgba(220, 180, 80, 0.3);
+                color: #ffd700;
+            }
+
+        /* ========== 品质弹窗 ========== */
+        .quality-modal-overlay, .list-modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.7);
+            z-index: 1500;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            animation: fadeIn 0.2s ease;
+        }
+
+        .quality-modal-box, .list-modal-box {
+            background: rgba(20, 15, 35, 0.95);
+            border: 2px solid rgba(220, 180, 80, 0.5);
+            border-radius: 14px;
+            padding: 24px 28px;
+            text-align: center;
+            box-shadow: 0 0 60px rgba(180, 140, 60, 0.4);
+            max-width: 380px;
+            width: 90%;
+            backdrop-filter: blur(20px);
+        }
+
+            .quality-modal-box h3, .list-modal-box h3 {
+                font-family: var(--font-title);
+                color: #f5e0b0;
+                letter-spacing: 2px;
+                margin-bottom: 12px;
+                font-size: 1.2em;
+                text-shadow: 0 0 15px rgba(220, 180, 80, 0.4);
+            }
+
+            .quality-modal-box p {
+                font-size: 0.75em;
+                color: rgba(220, 200, 160, 0.7);
+                margin-bottom: 12px;
+            }
+
+            .quality-modal-box input {
+                width: 100%;
+                background: rgba(30, 22, 45, 0.8);
+                border: 1px solid rgba(200, 160, 80, 0.35);
+                border-radius: 6px;
+                padding: 8px 12px;
+                color: #e8dcc8;
+                font-family: var(--font-body);
+                font-size: 0.9em;
+                outline: none;
+                transition: border-color 0.3s;
+                margin-bottom: 12px;
+            }
+
+                .quality-modal-box input:focus {
+                    border-color: rgba(255, 215, 0, 0.7);
+                    box-shadow: 0 0 10px rgba(220, 180, 80, 0.2);
+                }
+
+        .quality-error {
+            color: #ff6b6b;
+            font-size: 0.7em;
+            margin-bottom: 8px;
+            display: none;
+        }
+
+        .quality-options {
+            display: flex;
+            gap: 10px;
+            justify-content: center;
+            flex-wrap: wrap;
+            margin-bottom: 16px;
+        }
+
+        .quality-option {
+            background: rgba(30, 22, 45, 0.8);
+            border: 1px solid rgba(200, 160, 80, 0.35);
+            border-radius: 8px;
+            padding: 10px 14px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            color: #e8dcc8;
+            font-family: var(--font-title);
+            letter-spacing: 1px;
+            min-width: 70px;
+            text-align: center;
+            font-size: 0.85em;
+        }
+
+            .quality-option:hover {
+                border-color: #ffd700;
+                box-shadow: 0 0 20px rgba(220, 180, 80, 0.4);
+                background: rgba(40, 30, 55, 0.9);
+                transform: translateY(-2px);
+            }
+
+            .quality-option.selected {
+                border-color: #ffd700;
+                background: rgba(255, 215, 0, 0.2);
+                box-shadow: 0 0 15px rgba(255, 215, 0, 0.4);
+                color: #ffd700;
+            }
+
+            .quality-option .reward {
+                font-size: 0.75em;
+                color: #ffd700;
+                display: block;
+                margin-top: 3px;
+            }
+
+        .quality-cancel-btn, .quality-confirm-btn, .list-close-btn {
+            background: transparent;
+            border: 1px solid rgba(180, 140, 100, 0.4);
+            color: #a09080;
+            padding: 7px 20px;
+            border-radius: 16px;
+            cursor: pointer;
+            letter-spacing: 2px;
+            font-family: var(--font-title);
+            font-size: 0.85em;
+            transition: all 0.3s;
+            margin: 0 5px;
+        }
+
+            .quality-cancel-btn:hover, .list-close-btn:hover {
+                border-color: #c9a050;
+                color: #d4a843;
+            }
+
+        .quality-confirm-btn {
+            background: rgba(220, 180, 80, 0.15);
+            border-color: rgba(220, 180, 80, 0.5);
+            color: #ffd700;
+        }
+
+            .quality-confirm-btn:hover {
+                background: rgba(220, 180, 80, 0.25);
+                box-shadow: 0 0 15px rgba(220, 180, 80, 0.3);
+                border-color: #ffd700;
+            }
+
+        .list-modal-list {
+            max-height: 300px;
+            overflow-y: auto;
+            font-size: 0.7em;
+            color: rgba(220, 200, 160, 0.8);
+            line-height: 1.6;
+            letter-spacing: 1px;
+            text-align: left;
+            margin-bottom: 16px;
+        }
+
+        .list-modal-item {
+            padding: 6px 0;
+            border-bottom: 1px dashed rgba(200, 160, 80, 0.15);
+        }
+
+            .list-modal-item:last-child {
+                border-bottom: none;
+            }
+
         /* ========== 完成动画 ========== */
-        .attribute-card.completing {
+        .attribute-card.completing, .four-art-card.completing {
             animation: completeFlash 0.6s ease-out;
         }
 
@@ -725,7 +969,7 @@
             }
         }
 
-        /* ========== 对话框样式 ========== */
+        /* ========== 对话框样式（修炼痕迹） ========== */
         .modal-overlay {
             position: fixed;
             top: 0;
@@ -988,7 +1232,7 @@
 
         /* ========== 响应式设计 ========== */
         @media (max-width: 750px) {
-            .attributes-section {
+            .attributes-section, .four-arts-section {
                 grid-template-columns: repeat(3, 1fr);
             }
 
@@ -1002,11 +1246,11 @@
         }
 
         @media (max-width: 480px) {
-            .attributes-section {
+            .attributes-section, .four-arts-section {
                 grid-template-columns: repeat(2, 1fr);
             }
 
-            .cultivation-panel, .rizhi-panel {
+            .cultivation-panel, .rizhi-panel, .four-arts-panel {
                 padding: 22px 14px;
             }
         }
@@ -1032,7 +1276,7 @@
             </div>
             <button id="login-btn" class="login-btn">入 卷</button>
             <div id="login-message" class="login-message"></div>
-            <div class="version-text">v1.02</div>
+            <div class="version-text">v1.03</div> <!-- 修改为 v1.03 -->
         </div>
     </div>
 
@@ -1050,10 +1294,47 @@
         </div>
     </div>
 
+    <!-- 四艺品质/名称弹窗 -->
+    <div id="quality-modal-overlay" class="quality-modal-overlay" style="display:none;">
+        <div class="quality-modal-box">
+            <h3 id="quality-modal-title">评定品质</h3>
+            <p id="quality-modal-desc">请输入名称并选择品质</p>
+            <input type="text" id="four-art-name-input" placeholder="请输入名称..." autocomplete="off">
+            <div id="quality-error" class="quality-error">⚠️ 名称不能为空</div>
+            <div class="quality-options">
+                <div class="quality-option" data-quality="low" onclick="selectQualityOption('low')">
+                    下品
+                    <span class="reward">💎 +3 灵石</span>
+                </div>
+                <div class="quality-option" data-quality="mid" onclick="selectQualityOption('mid')">
+                    中品
+                    <span class="reward">💎 +5 灵石</span>
+                </div>
+                <div class="quality-option" data-quality="high" onclick="selectQualityOption('high')">
+                    上品
+                    <span class="reward">💎 +10 灵石</span>
+                </div>
+            </div>
+            <div class="modal-buttons" style="justify-content:center;">
+                <button class="quality-confirm-btn" onclick="confirmFourArt()">确 定</button>
+                <button class="quality-cancel-btn" onclick="closeQualityModal()">取 消</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- 四艺列表弹窗 -->
+    <div id="list-modal-overlay" class="list-modal-overlay" style="display:none;">
+        <div class="list-modal-box">
+            <h3 id="list-modal-title">列表</h3>
+            <div class="list-modal-list" id="list-modal-content"></div>
+            <button class="list-close-btn" onclick="closeListModal()">关 闭</button>
+        </div>
+    </div>
+
     <!-- 主容器 -->
     <div id="main-container" class="main-container" style="display:none;">
 
-        <!-- ===== 主面板 ===== -->
+        <!-- ===== 基本信息模块 ===== -->
         <div id="main-panel-view" class="cultivation-panel">
             <button id="logout-btn" class="logout-btn">出 卷</button>
 
@@ -1150,7 +1431,51 @@
             <div class="recent-log-area">
                 <span class="recent-log-text" id="recent-log">— 点击属性卡片开始修炼 —</span>
             </div>
-            <div class="main-version">v1.02</div>
+            <div class="main-version">v1.03</div> <!-- 修改为 v1.03 -->
+        </div>
+
+        <!-- ===== 修仙四艺模块 ===== -->
+        <div id="four-arts-panel-view" class="four-arts-panel">
+            <div class="corner-decoration corner-tl"></div>
+            <div class="corner-decoration corner-tr"></div>
+            <div class="corner-decoration corner-bl"></div>
+            <div class="corner-decoration corner-br"></div>
+
+            <div class="header-section">
+                <h2 class="panel-title" style="font-size:1.8em;">修 仙 四 艺</h2>
+                <div class="divider"></div>
+            </div>
+
+            <div class="four-arts-section">
+                <div class="four-art-card" id="four-art-gongfa" data-four-art="gongfa">
+                    <span class="four-art-icon">📜</span>
+                    <div class="four-art-name">功 法</div>
+                    <div class="four-art-desc">完成读书/课程学习<br>评定品质获取灵石</div>
+                    <div class="four-art-count" id="count-gongfa" data-type="21">已修炼0本功法</div>
+                    <button class="four-art-btn" onclick="startFourArt('gongfa')">研习功法</button>
+                </div>
+                <div class="four-art-card" id="four-art-qi" data-four-art="qi">
+                    <span class="four-art-icon">⚒️</span>
+                    <div class="four-art-name">炼 器</div>
+                    <div class="four-art-desc">产出产品/项目/网站<br>评定品质获得灵石</div>
+                    <div class="four-art-count" id="count-qi" data-type="22">已炼器0件</div>
+                    <button class="four-art-btn" onclick="startFourArt('qi')">开炉炼器</button>
+                </div>
+                <div class="four-art-card" id="four-art-fu" data-four-art="fu">
+                    <span class="four-art-icon">📝</span>
+                    <div class="four-art-name">制 符</div>
+                    <div class="four-art-desc">考取证书/比赛名次<br>评定品质获得灵石</div>
+                    <div class="four-art-count" id="count-fu" data-type="23">已制符0件</div>
+                    <button class="four-art-btn" onclick="startFourArt('fu')">绘制灵符</button>
+                </div>
+                <div class="four-art-card" id="four-art-ti" data-four-art="ti">
+                    <span class="four-art-icon">🔥</span>
+                    <div class="four-art-name">炼 体</div>
+                    <div class="four-art-desc">掌握技能/技艺<br>评定品级获得灵石</div>
+                    <div class="four-art-count" id="count-ti" data-type="24">已修炼0个技能</div>
+                    <button class="four-art-btn" onclick="startFourArt('ti')">锻炼体魄</button>
+                </div>
+            </div>
         </div>
 
         <!-- ===== 日志面板 ===== -->
@@ -1181,6 +1506,9 @@
         let cultivationData = null;
         let currentUser = null;
         let rizhiLogs = [];
+        let xiulianRecords = []; // 存储当前用户的 xiulian 数据
+        let currentFourArtType = null;
+        let selectedQuality = null;
 
         // ========== 大境界定义 ==========
         const bigStages = [
@@ -1214,6 +1542,14 @@
             order: { short: 'ord', name: '秩序', icon: '📐', dbField: 'zhixu', type: 13 },
             dexterity: { short: 'dex', name: '灵巧', icon: '🍃', dbField: 'lingqiao', type: 14 },
             luck: { short: 'lck', name: '幸运', icon: '🍀', dbField: 'xingyun', type: 15 }
+        };
+
+        // ========== 四艺映射 ==========
+        const fourArtsMap = {
+            gongfa: { name: '功法', icon: '📜', type: 21, inputLabel: '功法名称', unit: '本功法' },
+            qi: { name: '炼器', icon: '⚒️', type: 22, inputLabel: '法器名称', unit: '件' },
+            fu: { name: '制符', icon: '📝', type: 23, inputLabel: '灵符名称', unit: '件' },
+            ti: { name: '炼体', icon: '🔥', type: 24, inputLabel: '技能名称', unit: '个技能' }
         };
 
         // ========== 粒子背景 ==========
@@ -1346,6 +1682,7 @@
             document.getElementById('attr-lck').textContent = cultivationData.attributes.luck;
 
             updateCultivationStatus();
+            updateFourArtsCount(); // 更新四艺统计
         }
 
         function updateCultivationStatus() {
@@ -1372,7 +1709,7 @@
         async function fetchRizhiLogs() {
             if (!currentUser) return;
             const { data, error } = await mysupabase
-                .from('rizhi').select('*').eq('number', currentUser.number).order('time', { ascending: true });
+                .from('rizhi').select('*').eq('number', currentUser.number).order('time', { ascending: false });
             if (error) { console.error('获取日志失败:', error); return; }
             rizhiLogs = data || [];
             renderRizhiLogs();
@@ -1388,6 +1725,9 @@
             const typeIconMap = {};
             Object.values(attributeMap).forEach(attr => {
                 typeIconMap[attr.type] = attr.icon;
+            });
+            Object.values(fourArtsMap).forEach(art => {
+                typeIconMap[art.type] = art.icon;
             });
 
             container.innerHTML = rizhiLogs.map(log => {
@@ -1531,6 +1871,172 @@
             setRecentLog(`🌟 突破！晋升 ${getCurrentBigStage().name}！`);
         }
 
+        // ========== 四艺功能 ==========
+        function startFourArt(type) {
+            if (!fourArtsMap[type]) return;
+            currentFourArtType = type;
+            selectedQuality = null;
+            const art = fourArtsMap[type];
+            document.getElementById('quality-modal-title').textContent = `评定${art.name}品质`;
+            document.getElementById('quality-modal-desc').textContent = `请输入${art.inputLabel}并选择品质`;
+            document.getElementById('four-art-name-input').value = '';
+            document.getElementById('quality-error').style.display = 'none';
+            // 清除品质选项选中状态
+            document.querySelectorAll('.quality-option').forEach(opt => opt.classList.remove('selected'));
+            // 添加金光闪烁到对应卡片
+            const card = document.getElementById(`four-art-${type}`);
+            if (card) card.classList.add('cultivating');
+            document.getElementById('quality-modal-overlay').style.display = 'flex';
+        }
+
+        function selectQualityOption(quality) {
+            selectedQuality = quality;
+            document.querySelectorAll('.quality-option').forEach(opt => {
+                opt.classList.toggle('selected', opt.dataset.quality === quality);
+            });
+            document.getElementById('quality-error').style.display = 'none';
+        }
+
+        function closeQualityModal() {
+            document.getElementById('quality-modal-overlay').style.display = 'none';
+            // 移除金光闪烁
+            if (currentFourArtType) {
+                const card = document.getElementById(`four-art-${currentFourArtType}`);
+                if (card) card.classList.remove('cultivating');
+            }
+            currentFourArtType = null;
+            selectedQuality = null;
+        }
+
+        async function confirmFourArt() {
+            if (!currentFourArtType) return;
+            const name = document.getElementById('four-art-name-input').value.trim();
+            if (!name) {
+                document.getElementById('quality-error').textContent = '⚠️ 名称不能为空';
+                document.getElementById('quality-error').style.display = 'block';
+                document.getElementById('four-art-name-input').style.animation = 'shake 0.5s ease';
+                document.getElementById('four-art-name-input').addEventListener('animationend', () => {
+                    document.getElementById('four-art-name-input').style.animation = '';
+                }, { once: true });
+                return;
+            }
+            if (!selectedQuality) {
+                document.getElementById('quality-error').textContent = '⚠️ 请选择品质';
+                document.getElementById('quality-error').style.display = 'block';
+                return;
+            }
+
+            const type = currentFourArtType;
+            const art = fourArtsMap[type];
+            const rewardMap = { 'low': 3, 'mid': 5, 'high': 10 };
+            const levelMap = { 'low': 1, 'mid': 2, 'high': 3 };
+            const qualityNameMap = { 'low': '下品', 'mid': '中品', 'high': '上品' };
+            const reward = rewardMap[selectedQuality];
+            const level = levelMap[selectedQuality];
+            const qualityName = qualityNameMap[selectedQuality];
+
+            // 立即关闭弹窗
+            closeQualityModal();
+
+            // 增加灵石
+            cultivationData.spiritStones += reward;
+            updateUI(true);
+
+            // 构造记录
+            const record = `完成${art.name}${qualityName}《${name}》，获得 💎${reward} 灵石`;
+
+            // 移除卡片闪烁，添加完成动画
+            const card = document.getElementById(`four-art-${type}`);
+            if (card) {
+                card.classList.remove('cultivating');
+                card.classList.add('completing');
+                setTimeout(() => card.classList.remove('completing'), 600);
+                spawnSpiritParticles(card, `💎+${reward}`, 8);
+            }
+
+            // 插入修炼表 xiulian（包含 time 字段）
+            if (currentUser) {
+                const insertData = {
+                    number: currentUser.number,
+                    type: art.type,
+                    level: level,
+                    name: name,
+                    time: new Date().toISOString()
+                };
+                const { error: insertXiuLianError } = await mysupabase
+                    .from('xiulian')
+                    .insert([insertData]);
+                if (insertXiuLianError) console.error('插入修炼表失败:', insertXiuLianError);
+            }
+
+            // 插入日志表 rizhi
+            if (currentUser) {
+                const { error: insertRizhiError } = await mysupabase
+                    .from('rizhi')
+                    .insert([{ number: currentUser.number, time: new Date().toISOString(), type: art.type, record: record }]);
+                if (insertRizhiError) console.error('插入日志失败:', insertRizhiError);
+            }
+
+            // 更新用户数据
+            await updateUserData();
+            // 刷新日志
+            await fetchRizhiLogs();
+            // 刷新 xiulian 数据
+            await fetchXiulianRecords();
+        }
+
+        // ========== xiulian 表操作 ==========
+        async function fetchXiulianRecords() {
+            if (!currentUser) return;
+            const { data, error } = await mysupabase
+                .from('xiulian')
+                .select('*')
+                .eq('number', currentUser.number)
+                .order('time', { ascending: false }); // 按 time 倒序
+            if (error) {
+                console.error('获取修炼记录失败:', error);
+                return;
+            }
+            xiulianRecords = data || [];
+            updateFourArtsCount();
+        }
+
+        function updateFourArtsCount() {
+            const typeCounts = {
+                21: xiulianRecords.filter(r => r.type === 21).length,
+                22: xiulianRecords.filter(r => r.type === 22).length,
+                23: xiulianRecords.filter(r => r.type === 23).length,
+                24: xiulianRecords.filter(r => r.type === 24).length
+            };
+            document.getElementById('count-gongfa').textContent = `已修炼${typeCounts[21]}本功法`;
+            document.getElementById('count-qi').textContent = `已炼器${typeCounts[22]}件`;
+            document.getElementById('count-fu').textContent = `已制符${typeCounts[23]}件`;
+            document.getElementById('count-ti').textContent = `已修炼${typeCounts[24]}个技能`;
+        }
+
+        // 点击统计文字弹出列表
+        function showListModal(type) {
+            const records = xiulianRecords.filter(r => r.type === type);
+            const art = Object.values(fourArtsMap).find(a => a.type === type);
+            document.getElementById('list-modal-title').textContent = `${art.name}列表（共${records.length}条）`;
+            const content = document.getElementById('list-modal-content');
+            if (records.length === 0) {
+                content.innerHTML = '<div class="list-modal-item">暂无记录</div>';
+            } else {
+                const levelMap = { 1: '下品', 2: '中品', 3: '上品' };
+                content.innerHTML = records.map(r => {
+                    const levelName = levelMap[r.level] || '未知';
+                    const timeStr = r.time ? formatTime(r.time) : '未知时间';
+                    return `<div class="list-modal-item">[${levelName}] ${escapeHtml(r.name)} - ${timeStr}</div>`;
+                }).join('');
+            }
+            document.getElementById('list-modal-overlay').style.display = 'flex';
+        }
+
+        function closeListModal() {
+            document.getElementById('list-modal-overlay').style.display = 'none';
+        }
+
         // ========== 数据库操作 ==========
         async function updateUserData() {
             if (!currentUser || !cultivationData) return;
@@ -1578,6 +2084,7 @@
             currentUser = user;
             cultivationData = mapUserToCultivationData(user);
             await fetchRizhiLogs();
+            await fetchXiulianRecords(); // 初始化 xiulian 数据
             enterMainPanel();
         }
 
@@ -1625,6 +2132,7 @@
                     cultivationData = mapUserToCultivationData(user);
                     setCachedUser(user);
                     await fetchRizhiLogs();
+                    await fetchXiulianRecords();
                     messageEl.textContent = '登录成功，欢迎回来！';
                     enterMainPanel();
                 } else {
@@ -1644,6 +2152,7 @@
                     cultivationData = mapUserToCultivationData(insertedUser);
                     setCachedUser(insertedUser);
                     await fetchRizhiLogs();
+                    await fetchXiulianRecords();
 
                     messageEl.textContent = '恭喜新道友入卷！';
                     spawnSpiritParticles(document.getElementById('login-btn'), '🎉 入卷', 12);
@@ -1662,6 +2171,7 @@
             currentUser = null;
             cultivationData = null;
             rizhiLogs = [];
+            xiulianRecords = [];
             showLogin();
         }
 
@@ -1691,6 +2201,25 @@
             document.getElementById('confirm-complete-btn').addEventListener('click', confirmComplete);
             document.getElementById('cancel-complete-btn').addEventListener('click', closeCompleteModal);
             document.getElementById('cultivation-complete-modal').addEventListener('click', function (e) { if (e.target === this) closeCompleteModal(); });
+
+            // 品质弹窗背景点击关闭
+            document.getElementById('quality-modal-overlay').addEventListener('click', function (e) {
+                if (e.target === this) closeQualityModal();
+            });
+
+            // 列表弹窗背景点击关闭
+            document.getElementById('list-modal-overlay').addEventListener('click', function (e) {
+                if (e.target === this) closeListModal();
+            });
+
+            // 四艺统计文字点击事件（使用事件委托）
+            document.querySelectorAll('.four-art-count').forEach(el => {
+                el.addEventListener('click', function (e) {
+                    e.stopPropagation();
+                    const type = parseInt(this.dataset.type);
+                    showListModal(type);
+                });
+            });
         }
 
         // ========== 初始化 ==========

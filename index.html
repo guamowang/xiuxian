@@ -140,6 +140,13 @@
                     box-shadow: 0 0 10px rgba(220, 180, 80, 0.2);
                 }
 
+                .login-field input:disabled {
+                    background: rgba(30, 22, 45, 0.5);
+                    color: #888;
+                    cursor: not-allowed;
+                    border-color: rgba(200, 160, 80, 0.15);
+                }
+
         .login-btn {
             width: 100%;
             background: rgba(220, 180, 80, 0.15);
@@ -160,6 +167,14 @@
                 background: rgba(220, 180, 80, 0.25);
                 box-shadow: var(--glow-gold), inset 0 0 20px rgba(220, 180, 80, 0.15);
                 color: #ffd700;
+            }
+
+            .login-btn:disabled {
+                background: rgba(200, 150, 40, 0.05);
+                border-color: rgba(200, 160, 80, 0.2);
+                color: #888;
+                cursor: not-allowed;
+                box-shadow: none;
             }
 
         .login-message {
@@ -754,16 +769,6 @@
             line-height: 1.4;
         }
 
-        .four-art-count {
-            display: inline-block;
-            font-size: 0.65em;
-            color: rgba(220, 180, 80, 0.7);
-            margin-top: 4px;
-            cursor: pointer;
-            text-decoration: underline;
-            letter-spacing: 1px;
-        }
-
         .four-art-btn {
             background: rgba(200, 150, 40, 0.15);
             border: 1px solid rgba(220, 180, 80, 0.5);
@@ -776,6 +781,10 @@
             letter-spacing: 1px;
             transition: all 0.3s ease;
             margin-top: 4px;
+            display: block;
+            width: fit-content;
+            margin-left: auto;
+            margin-right: auto;
         }
 
             .four-art-btn:hover {
@@ -783,6 +792,16 @@
                 box-shadow: 0 0 12px rgba(220, 180, 80, 0.3);
                 color: #ffd700;
             }
+
+        .four-art-count {
+            display: inline-block;
+            font-size: 0.65em;
+            color: rgba(220, 180, 80, 0.7);
+            margin-top: 6px;
+            cursor: pointer;
+            text-decoration: underline;
+            letter-spacing: 1px;
+        }
 
         /* ========== 品质弹窗 ========== */
         .quality-modal-overlay, .list-modal-overlay {
@@ -1276,7 +1295,7 @@
             </div>
             <button id="login-btn" class="login-btn">入 卷</button>
             <div id="login-message" class="login-message"></div>
-            <div class="version-text">v1.03</div> <!-- 修改为 v1.03 -->
+            <div class="version-text">v1.04</div>
         </div>
     </div>
 
@@ -1431,7 +1450,7 @@
             <div class="recent-log-area">
                 <span class="recent-log-text" id="recent-log">— 点击属性卡片开始修炼 —</span>
             </div>
-            <div class="main-version">v1.03</div> <!-- 修改为 v1.03 -->
+            <div class="main-version">v1.04</div>
         </div>
 
         <!-- ===== 修仙四艺模块 ===== -->
@@ -1442,7 +1461,7 @@
             <div class="corner-decoration corner-br"></div>
 
             <div class="header-section">
-                <h2 class="panel-title" style="font-size:1.8em;">修 仙 四 艺</h2>
+                <h2 class="panel-title" style="font-size:1.5em;">✦ 修 仙 四 艺 ✦</h2>
                 <div class="divider"></div>
             </div>
 
@@ -1451,29 +1470,29 @@
                     <span class="four-art-icon">📜</span>
                     <div class="four-art-name">功 法</div>
                     <div class="four-art-desc">完成读书/课程学习<br>评定品质获取灵石</div>
-                    <div class="four-art-count" id="count-gongfa" data-type="21">已修炼0本功法</div>
                     <button class="four-art-btn" onclick="startFourArt('gongfa')">研习功法</button>
+                    <div class="four-art-count" id="count-gongfa" data-type="21">已修炼0本功法</div>
                 </div>
                 <div class="four-art-card" id="four-art-qi" data-four-art="qi">
                     <span class="four-art-icon">⚒️</span>
                     <div class="four-art-name">炼 器</div>
                     <div class="four-art-desc">产出产品/项目/网站<br>评定品质获得灵石</div>
-                    <div class="four-art-count" id="count-qi" data-type="22">已炼器0件</div>
                     <button class="four-art-btn" onclick="startFourArt('qi')">开炉炼器</button>
+                    <div class="four-art-count" id="count-qi" data-type="22">已炼器0件</div>
                 </div>
                 <div class="four-art-card" id="four-art-fu" data-four-art="fu">
                     <span class="four-art-icon">📝</span>
                     <div class="four-art-name">制 符</div>
                     <div class="four-art-desc">考取证书/比赛名次<br>评定品质获得灵石</div>
-                    <div class="four-art-count" id="count-fu" data-type="23">已制符0件</div>
                     <button class="four-art-btn" onclick="startFourArt('fu')">绘制灵符</button>
+                    <div class="four-art-count" id="count-fu" data-type="23">已制符0件</div>
                 </div>
                 <div class="four-art-card" id="four-art-ti" data-four-art="ti">
                     <span class="four-art-icon">🔥</span>
                     <div class="four-art-name">炼 体</div>
                     <div class="four-art-desc">掌握技能/技艺<br>评定品级获得灵石</div>
-                    <div class="four-art-count" id="count-ti" data-type="24">已修炼0个技能</div>
                     <button class="four-art-btn" onclick="startFourArt('ti')">锻炼体魄</button>
+                    <div class="four-art-count" id="count-ti" data-type="24">已修炼0个技能</div>
                 </div>
             </div>
         </div>
@@ -1506,7 +1525,7 @@
         let cultivationData = null;
         let currentUser = null;
         let rizhiLogs = [];
-        let xiulianRecords = []; // 存储当前用户的 xiulian 数据
+        let xiulianRecords = [];
         let currentFourArtType = null;
         let selectedQuality = null;
 
@@ -1632,9 +1651,18 @@
             return '未知境界';
         }
 
+        function getNextSmallStage(xiuwei) {
+            for (let i = 0; i < smallStages.length; i++) {
+                if (xiuwei >= smallStages[i].min && xiuwei <= smallStages[i].max) {
+                    return smallStages[i + 1] || null;
+                }
+            }
+            return null;
+        }
+
         function getDaoAge(createtime) {
             const diffMs = new Date() - new Date(createtime);
-            return Math.max(0, Math.floor(diffMs / (1000 * 60 * 60 * 24)));
+            return Math.max(0, Math.ceil(diffMs / (1000 * 60 * 60 * 24)));
         }
 
         function formatTime(timeStr) { return new Date(timeStr).toLocaleString('zh-CN', { hour12: false }); }
@@ -1642,6 +1670,18 @@
             const div = document.createElement('div');
             div.textContent = str;
             return div.innerHTML;
+        }
+
+        // ========== 登录状态管理 ==========
+        function setLoginLoading(isLoading, message = '') {
+            const daoInput = document.getElementById('login-dao-name');
+            const markInput = document.getElementById('login-spirit-mark');
+            const btn = document.getElementById('login-btn');
+            const msgEl = document.getElementById('login-message');
+            if (daoInput) daoInput.disabled = isLoading;
+            if (markInput) markInput.disabled = isLoading;
+            if (btn) btn.disabled = isLoading;
+            if (msgEl) msgEl.textContent = message;
         }
 
         // ========== UI 更新 ==========
@@ -1662,11 +1702,17 @@
             if (animateValue) { cvEl.classList.remove('pop'); void cvEl.offsetWidth; cvEl.classList.add('pop'); }
 
             let pp, rt;
-            if (nextBigStage) {
-                const range = nextBigStage.threshold - bigStage.threshold;
-                const progress = cv - bigStage.threshold;
-                pp = Math.min(100, Math.max(0, (progress / range) * 100));
-                rt = `距突破 ${nextBigStage.name} 还需 ${nextBigStage.threshold - cv} 修为`;
+            const nextSmall = getNextSmallStage(cv);
+            if (nextSmall) {
+                const range = nextSmall.min - cv;
+                rt = `距 ${nextSmall.name} 还需 ${range} 修为`;
+                if (nextBigStage) {
+                    const bigRange = nextBigStage.threshold - bigStage.threshold;
+                    const bigProgress = cv - bigStage.threshold;
+                    pp = Math.min(100, Math.max(0, (bigProgress / bigRange) * 100));
+                } else {
+                    pp = 100;
+                }
             } else {
                 pp = 100;
                 rt = '已达当前最高境界 · 超凡入圣';
@@ -1682,7 +1728,7 @@
             document.getElementById('attr-lck').textContent = cultivationData.attributes.luck;
 
             updateCultivationStatus();
-            updateFourArtsCount(); // 更新四艺统计
+            updateFourArtsCount();
         }
 
         function updateCultivationStatus() {
@@ -1881,9 +1927,7 @@
             document.getElementById('quality-modal-desc').textContent = `请输入${art.inputLabel}并选择品质`;
             document.getElementById('four-art-name-input').value = '';
             document.getElementById('quality-error').style.display = 'none';
-            // 清除品质选项选中状态
             document.querySelectorAll('.quality-option').forEach(opt => opt.classList.remove('selected'));
-            // 添加金光闪烁到对应卡片
             const card = document.getElementById(`four-art-${type}`);
             if (card) card.classList.add('cultivating');
             document.getElementById('quality-modal-overlay').style.display = 'flex';
@@ -1899,7 +1943,6 @@
 
         function closeQualityModal() {
             document.getElementById('quality-modal-overlay').style.display = 'none';
-            // 移除金光闪烁
             if (currentFourArtType) {
                 const card = document.getElementById(`four-art-${currentFourArtType}`);
                 if (card) card.classList.remove('cultivating');
@@ -1935,17 +1978,13 @@
             const level = levelMap[selectedQuality];
             const qualityName = qualityNameMap[selectedQuality];
 
-            // 立即关闭弹窗
             closeQualityModal();
 
-            // 增加灵石
             cultivationData.spiritStones += reward;
             updateUI(true);
 
-            // 构造记录
             const record = `完成${art.name}${qualityName}《${name}》，获得 💎${reward} 灵石`;
 
-            // 移除卡片闪烁，添加完成动画
             const card = document.getElementById(`four-art-${type}`);
             if (card) {
                 card.classList.remove('cultivating');
@@ -1954,7 +1993,6 @@
                 spawnSpiritParticles(card, `💎+${reward}`, 8);
             }
 
-            // 插入修炼表 xiulian（包含 time 字段）
             if (currentUser) {
                 const insertData = {
                     number: currentUser.number,
@@ -1969,7 +2007,6 @@
                 if (insertXiuLianError) console.error('插入修炼表失败:', insertXiuLianError);
             }
 
-            // 插入日志表 rizhi
             if (currentUser) {
                 const { error: insertRizhiError } = await mysupabase
                     .from('rizhi')
@@ -1977,11 +2014,8 @@
                 if (insertRizhiError) console.error('插入日志失败:', insertRizhiError);
             }
 
-            // 更新用户数据
             await updateUserData();
-            // 刷新日志
             await fetchRizhiLogs();
-            // 刷新 xiulian 数据
             await fetchXiulianRecords();
         }
 
@@ -1992,7 +2026,7 @@
                 .from('xiulian')
                 .select('*')
                 .eq('number', currentUser.number)
-                .order('time', { ascending: false }); // 按 time 倒序
+                .order('time', { ascending: false });
             if (error) {
                 console.error('获取修炼记录失败:', error);
                 return;
@@ -2014,7 +2048,6 @@
             document.getElementById('count-ti').textContent = `已修炼${typeCounts[24]}个技能`;
         }
 
-        // 点击统计文字弹出列表
         function showListModal(type) {
             const records = xiulianRecords.filter(r => r.type === type);
             const art = Object.values(fourArtsMap).find(a => a.type === type);
@@ -2078,17 +2111,31 @@
 
         async function checkAutoLogin() {
             const cachedUser = getCachedUser();
-            if (!cachedUser || !cachedUser.name) { showLogin(); return; }
-            const { data: user, error } = await mysupabase.from('users').select('*').eq('name', cachedUser.name).maybeSingle();
-            if (error || !user) { clearCachedUser(); showLogin(); return; }
-            currentUser = user;
-            cultivationData = mapUserToCultivationData(user);
-            await fetchRizhiLogs();
-            await fetchXiulianRecords(); // 初始化 xiulian 数据
-            enterMainPanel();
+            if (!cachedUser || !cachedUser.name) {
+                showLogin();
+                return;
+            }
+            // 显示加载状态
+            setLoginLoading(true, '入卷检索中...');
+            try {
+                const { data: user, error } = await mysupabase.from('users').select('*').eq('name', cachedUser.name).maybeSingle();
+                if (error || !user) {
+                    clearCachedUser();
+                    showLogin();
+                    return;
+                }
+                currentUser = user;
+                cultivationData = mapUserToCultivationData(user);
+                await fetchRizhiLogs();
+                await fetchXiulianRecords();
+                enterMainPanel();
+            } finally {
+                setLoginLoading(false, '');
+            }
         }
 
         function showLogin() {
+            setLoginLoading(false, '');
             document.getElementById('login-overlay').style.display = 'flex';
             document.getElementById('main-container').style.display = 'none';
             document.getElementById('login-message').textContent = '';
@@ -2111,8 +2158,9 @@
             const loginBtn = document.getElementById('login-btn');
 
             if (!daoName || !password) { messageEl.textContent = '道号和神纹均不能为空'; return; }
-            loginBtn.disabled = true;
-            messageEl.textContent = '正在入卷...';
+
+            // 设置加载状态
+            setLoginLoading(true, '正在入卷...');
 
             try {
                 const { data: user, error: queryError } = await mysupabase.from('users').select('*').eq('name', daoName).maybeSingle();
@@ -2143,7 +2191,7 @@
                     const newUser = {
                         number: newNumber, name: daoName, password: password,
                         createtime: new Date().toISOString(),
-                        xiuwei: 47, lingshi: 25, zhili: 12, tizhi: 9, zhixu: 14, lingqiao: 11, xingyun: 8
+                        xiuwei: 0, lingshi: 0, zhili: 0, tizhi: 0, zhixu: 0, lingqiao: 0, xingyun: 0
                     };
                     const { data: insertedUser, error: insertError } = await mysupabase.from('users').insert([newUser]).select().single();
                     if (insertError) throw insertError;
@@ -2162,7 +2210,7 @@
                 console.error('登录/注册异常:', err);
                 messageEl.textContent = '网络错误，请稍后再试';
             } finally {
-                loginBtn.disabled = false;
+                setLoginLoading(false, '');
             }
         }
 
@@ -2202,17 +2250,14 @@
             document.getElementById('cancel-complete-btn').addEventListener('click', closeCompleteModal);
             document.getElementById('cultivation-complete-modal').addEventListener('click', function (e) { if (e.target === this) closeCompleteModal(); });
 
-            // 品质弹窗背景点击关闭
             document.getElementById('quality-modal-overlay').addEventListener('click', function (e) {
                 if (e.target === this) closeQualityModal();
             });
 
-            // 列表弹窗背景点击关闭
             document.getElementById('list-modal-overlay').addEventListener('click', function (e) {
                 if (e.target === this) closeListModal();
             });
 
-            // 四艺统计文字点击事件（使用事件委托）
             document.querySelectorAll('.four-art-count').forEach(el => {
                 el.addEventListener('click', function (e) {
                     e.stopPropagation();

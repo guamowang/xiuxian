@@ -228,7 +228,7 @@
             }
 
         /* ========== 面板样式 ========== */
-        .cultivation-panel, .rizhi-panel, .four-arts-panel {
+        .cultivation-panel, .rizhi-panel, .four-arts-panel, .travel-panel {
             background: var(--panel-bg);
             border: 2px solid var(--border-subtle);
             border-radius: 16px;
@@ -242,7 +242,7 @@
             margin-bottom: 20px;
         }
 
-            .cultivation-panel::before, .rizhi-panel::before, .four-arts-panel::before {
+            .cultivation-panel::before, .rizhi-panel::before, .four-arts-panel::before, .travel-panel::before {
                 content: '';
                 position: absolute;
                 top: 0;
@@ -326,6 +326,16 @@
             letter-spacing: 3px;
         }
 
+        .section-title {
+            font-family: var(--font-title);
+            font-size: 1.5em;
+            color: #f5e0b0;
+            letter-spacing: 3px;
+            text-align: center;
+            margin-bottom: 5px;
+            text-shadow: 0 0 15px rgba(220, 180, 80, 0.4);
+        }
+
         .divider {
             width: 60%;
             height: 1px;
@@ -334,7 +344,7 @@
             opacity: 0.7;
         }
 
-        /* ========== 身份信息区（集中、紧凑） ========== */
+        /* ========== 身份信息区 ========== */
         .identity-section {
             display: flex;
             justify-content: center;
@@ -372,13 +382,12 @@
                 text-shadow: 0 0 20px rgba(220, 180, 80, 0.5);
             }
 
-        /* 境界文字蓝色 */
         #stage-display {
             color: #7eb8ff;
             text-shadow: 0 0 15px rgba(126, 184, 255, 0.5);
         }
 
-        /* ========== 灵石样式（紧凑版，💎图标） ========== */
+        /* ========== 灵石样式 ========== */
         .lingshi-display {
             display: inline-flex;
             align-items: center;
@@ -662,7 +671,7 @@
         }
 
         /* ========== 修炼中状态 ========== */
-        .attribute-card.cultivating, .four-art-card.cultivating {
+        .attribute-card.cultivating, .four-art-card.cultivating, .travel-card.cultivating {
             border-color: rgba(255, 215, 0, 0.8);
             box-shadow: 0 0 40px rgba(255, 215, 0, 0.4), inset 0 0 20px rgba(255, 215, 0, 0.1);
             animation: cultivatingPulse 2s ease-in-out infinite;
@@ -679,7 +688,7 @@
             }
         }
 
-        .attribute-card.cultivating .attribute-icon, .four-art-card.cultivating .four-art-icon {
+        .attribute-card.cultivating .attribute-icon, .four-art-card.cultivating .four-art-icon, .travel-card.cultivating .module-icon {
             animation: iconFloat 1.5s ease-in-out infinite;
         }
 
@@ -693,7 +702,7 @@
             }
         }
 
-        .attribute-card.cultivating::before, .four-art-card.cultivating::before {
+        .attribute-card.cultivating::before, .four-art-card.cultivating::before, .travel-card.cultivating::before {
             content: '';
             position: absolute;
             top: 50%;
@@ -803,8 +812,156 @@
             letter-spacing: 1px;
         }
 
+        /* ========== 云游四海样式 ========== */
+        .travel-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 14px;
+            margin-bottom: 12px;
+            position: relative;
+            z-index: 3;
+        }
+
+        .travel-card {
+            background: var(--card-bg);
+            border-radius: 12px;
+            padding: 18px 14px;
+            text-align: center;
+            border: 1px solid rgba(200, 160, 80, 0.22);
+            transition: all 0.3s ease;
+            cursor: pointer;
+            position: relative;
+            overflow: hidden;
+        }
+
+            .travel-card:hover {
+                border-color: rgba(220, 180, 80, 0.6);
+                box-shadow: 0 0 30px rgba(220, 180, 80, 0.25);
+                transform: translateY(-3px);
+                background: rgba(30, 24, 45, 0.85);
+            }
+
+            .travel-card.primary {
+                border-color: rgba(126, 184, 255, 0.4);
+            }
+
+                .travel-card.primary:hover {
+                    border-color: rgba(126, 184, 255, 0.7);
+                    box-shadow: 0 0 30px rgba(126, 184, 255, 0.3);
+                }
+
+            .travel-card.warning {
+                border-color: rgba(255, 215, 0, 0.4);
+            }
+
+                .travel-card.warning:hover {
+                    border-color: rgba(255, 215, 0, 0.7);
+                    box-shadow: 0 0 30px rgba(255, 215, 0, 0.3);
+                }
+
+            .travel-card.danger {
+                border-color: rgba(255, 107, 107, 0.4);
+            }
+
+                .travel-card.danger:hover {
+                    border-color: rgba(255, 107, 107, 0.7);
+                    box-shadow: 0 0 30px rgba(255, 107, 107, 0.3);
+                }
+
+        .module-icon {
+            font-size: 2em;
+            display: block;
+            margin-bottom: 4px;
+        }
+
+        .travel-difficulty {
+            font-family: var(--font-title);
+            font-size: 1.1em;
+            letter-spacing: 2px;
+            margin-bottom: 6px;
+        }
+
+            .travel-difficulty.easy {
+                color: #7eb8ff;
+                text-shadow: 0 0 10px rgba(126, 184, 255, 0.4);
+            }
+
+            .travel-difficulty.medium {
+                color: #ffd700;
+                text-shadow: 0 0 10px rgba(255, 215, 0, 0.4);
+            }
+
+            .travel-difficulty.hard {
+                color: #ff6b6b;
+                text-shadow: 0 0 10px rgba(255, 107, 107, 0.4);
+            }
+
+        .travel-reward {
+            font-size: 0.75em;
+            color: rgba(220, 200, 160, 0.7);
+            margin-bottom: 4px;
+        }
+
+        .travel-cost {
+            font-size: 0.7em;
+            color: #ffd700;
+            margin-bottom: 10px;
+            letter-spacing: 1px;
+        }
+
+        .travel-example {
+            font-size: 0.6em;
+            color: rgba(200, 180, 150, 0.5);
+            margin-bottom: 8px;
+            line-height: 1.4;
+            font-style: italic;
+        }
+
+        .travel-btn {
+            background: transparent;
+            border: 1px solid rgba(220, 180, 80, 0.5);
+            color: #d4a843;
+            font-family: var(--font-title);
+            font-size: 0.85em;
+            padding: 7px 20px;
+            border-radius: 20px;
+            cursor: pointer;
+            letter-spacing: 2px;
+            transition: all 0.3s ease;
+            display: inline-block;
+        }
+
+            .travel-btn:hover {
+                background: rgba(220, 180, 80, 0.15);
+                box-shadow: 0 0 15px rgba(220, 180, 80, 0.3);
+                color: #ffd700;
+            }
+
+            .travel-btn:disabled {
+                opacity: 0.4;
+                cursor: not-allowed;
+                pointer-events: none;
+            }
+
+        .travel-count {
+            font-size: 0.65em;
+            color: rgba(200, 160, 80, 0.6);
+            margin-top: 6px;
+            letter-spacing: 1px;
+            cursor: pointer;
+            text-decoration: underline;
+        }
+
+        .travel-progress {
+            font-size: 0.65em;
+            color: #ffd700;
+            margin-bottom: 8px;
+            letter-spacing: 1px;
+            text-shadow: 0 0 8px rgba(255, 215, 0, 0.5);
+        }
+
         /* ========== 品质弹窗 ========== */
-        .quality-modal-overlay, .list-modal-overlay {
+        .quality-modal-overlay, .list-modal-overlay, .travel-modal-overlay, .simple-alert-overlay {
             position: fixed;
             top: 0;
             left: 0;
@@ -818,19 +975,19 @@
             animation: fadeIn 0.2s ease;
         }
 
-        .quality-modal-box, .list-modal-box {
+        .quality-modal-box, .list-modal-box, .travel-modal-box, .simple-alert-box {
             background: rgba(20, 15, 35, 0.95);
             border: 2px solid rgba(220, 180, 80, 0.5);
             border-radius: 14px;
             padding: 24px 28px;
             text-align: center;
             box-shadow: 0 0 60px rgba(180, 140, 60, 0.4);
-            max-width: 380px;
+            max-width: 420px;
             width: 90%;
             backdrop-filter: blur(20px);
         }
 
-            .quality-modal-box h3, .list-modal-box h3 {
+            .quality-modal-box h3, .list-modal-box h3, .travel-modal-box h3, .simple-alert-box h3 {
                 font-family: var(--font-title);
                 color: #f5e0b0;
                 letter-spacing: 2px;
@@ -839,13 +996,14 @@
                 text-shadow: 0 0 15px rgba(220, 180, 80, 0.4);
             }
 
-            .quality-modal-box p {
-                font-size: 0.75em;
-                color: rgba(220, 200, 160, 0.7);
-                margin-bottom: 12px;
+            .quality-modal-box p, .travel-modal-box p, .simple-alert-box p {
+                font-size: 0.85em;
+                color: rgba(220, 200, 160, 0.8);
+                margin-bottom: 16px;
+                line-height: 1.5;
             }
 
-            .quality-modal-box input {
+            .quality-modal-box input, .travel-modal-box input, .travel-modal-box textarea {
                 width: 100%;
                 background: rgba(30, 22, 45, 0.8);
                 border: 1px solid rgba(200, 160, 80, 0.35);
@@ -859,12 +1017,17 @@
                 margin-bottom: 12px;
             }
 
-                .quality-modal-box input:focus {
+                .quality-modal-box input:focus, .travel-modal-box input:focus, .travel-modal-box textarea:focus {
                     border-color: rgba(255, 215, 0, 0.7);
                     box-shadow: 0 0 10px rgba(220, 180, 80, 0.2);
                 }
 
-        .quality-error {
+            .travel-modal-box textarea {
+                resize: vertical;
+                min-height: 60px;
+            }
+
+        .quality-error, .travel-error {
             color: #ff6b6b;
             font-size: 0.7em;
             margin-bottom: 8px;
@@ -915,7 +1078,7 @@
                 margin-top: 3px;
             }
 
-        .quality-cancel-btn, .quality-confirm-btn, .list-close-btn {
+        .quality-cancel-btn, .quality-confirm-btn, .list-close-btn, .travel-confirm-btn, .travel-cancel-btn, .simple-alert-btn {
             background: transparent;
             border: 1px solid rgba(180, 140, 100, 0.4);
             color: #a09080;
@@ -929,18 +1092,18 @@
             margin: 0 5px;
         }
 
-            .quality-cancel-btn:hover, .list-close-btn:hover {
+            .quality-cancel-btn:hover, .list-close-btn:hover, .travel-cancel-btn:hover, .simple-alert-btn:hover {
                 border-color: #c9a050;
                 color: #d4a843;
             }
 
-        .quality-confirm-btn {
+        .quality-confirm-btn, .travel-confirm-btn {
             background: rgba(220, 180, 80, 0.15);
             border-color: rgba(220, 180, 80, 0.5);
             color: #ffd700;
         }
 
-            .quality-confirm-btn:hover {
+            .quality-confirm-btn:hover, .travel-confirm-btn:hover {
                 background: rgba(220, 180, 80, 0.25);
                 box-shadow: 0 0 15px rgba(220, 180, 80, 0.3);
                 border-color: #ffd700;
@@ -967,7 +1130,7 @@
             }
 
         /* ========== 完成动画 ========== */
-        .attribute-card.completing, .four-art-card.completing {
+        .attribute-card.completing, .four-art-card.completing, .travel-card.completing {
             animation: completeFlash 0.6s ease-out;
         }
 
@@ -1251,8 +1414,8 @@
 
         /* ========== 响应式设计 ========== */
         @media (max-width: 750px) {
-            .attributes-section, .four-arts-section {
-                grid-template-columns: repeat(3, 1fr);
+            .attributes-section, .four-arts-section, .travel-grid {
+                grid-template-columns: repeat(2, 1fr);
             }
 
             .identity-section {
@@ -1265,13 +1428,70 @@
         }
 
         @media (max-width: 480px) {
-            .attributes-section, .four-arts-section {
-                grid-template-columns: repeat(2, 1fr);
+            .attributes-section, .four-arts-section, .travel-grid {
+                grid-template-columns: 1fr;
             }
 
-            .cultivation-panel, .rizhi-panel, .four-arts-panel {
+            .cultivation-panel, .rizhi-panel, .four-arts-panel, .travel-panel {
                 padding: 22px 14px;
             }
+        }
+
+        /* ========== 弹窗字段左标签 ========== */
+        .travel-field-row {
+            display: flex;
+            align-items: center;
+            margin-bottom: 12px;
+        }
+
+            .travel-field-row label {
+                width: 80px;
+                text-align: right;
+                margin-right: 10px;
+                font-size: 0.75em;
+                color: rgba(220, 200, 160, 0.8);
+                letter-spacing: 1px;
+                flex-shrink: 0;
+            }
+
+            .travel-field-row input,
+            .travel-field-row textarea {
+                flex: 1;
+                background: rgba(30, 22, 45, 0.8);
+                border: 1px solid rgba(200, 160, 80, 0.35);
+                border-radius: 6px;
+                padding: 8px 12px;
+                color: #e8dcc8;
+                font-family: var(--font-body);
+                font-size: 0.9em;
+                outline: none;
+                transition: border-color 0.3s;
+            }
+
+                .travel-field-row input:focus,
+                .travel-field-row textarea:focus {
+                    border-color: rgba(255, 215, 0, 0.7);
+                    box-shadow: 0 0 10px rgba(220, 180, 80, 0.2);
+                }
+
+                .travel-field-row input[type="datetime-local"] {
+                    background: #f0e6d2;
+                    color: #1a1410;
+                    color-scheme: light;
+                }
+
+                .travel-field-row input:disabled,
+                .travel-field-row textarea:disabled {
+                    background: rgba(30, 22, 45, 0.4);
+                    color: #888;
+                    cursor: not-allowed;
+                }
+
+        .travel-modal-box button:disabled,
+        .simple-alert-box button:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+            pointer-events: none;
         }
     </style>
 </head>
@@ -1295,7 +1515,7 @@
             </div>
             <button id="login-btn" class="login-btn">入 卷</button>
             <div id="login-message" class="login-message"></div>
-            <div class="version-text">v1.04</div>
+            <div class="version-text">v1.05</div>
         </div>
     </div>
 
@@ -1337,6 +1557,56 @@
             <div class="modal-buttons" style="justify-content:center;">
                 <button class="quality-confirm-btn" onclick="confirmFourArt()">确 定</button>
                 <button class="quality-cancel-btn" onclick="closeQualityModal()">取 消</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- 云游开启副本弹窗 -->
+    <div id="travel-open-modal-overlay" class="travel-modal-overlay" style="display:none;">
+        <div class="travel-modal-box">
+            <h3 id="travel-open-modal-title">开启副本</h3>
+            <p id="travel-open-modal-desc">请填写副本信息</p>
+            <div class="travel-field-row">
+                <label for="travel-name-input">副本名称</label>
+                <input type="text" id="travel-name-input" placeholder="请输入副本名称" autocomplete="off">
+            </div>
+            <div class="travel-field-row">
+                <label for="travel-detail-input">副本详述</label>
+                <textarea id="travel-detail-input" placeholder="请输入副本详述"></textarea>
+            </div>
+            <div class="travel-field-row">
+                <label for="travel-endtime-input">副本关闭时间</label>
+                <input type="datetime-local" id="travel-endtime-input">
+            </div>
+            <div id="travel-open-error" class="travel-error">⚠️ 请完整填写所有字段，且关闭时间须在一天之后</div>
+            <div class="modal-buttons" style="justify-content:center;">
+                <button class="travel-confirm-btn" onclick="confirmOpenTravel()">确 定</button>
+                <button class="travel-cancel-btn" onclick="closeTravelOpenModal()">取 消</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- 云游完成副本弹窗 -->
+    <div id="travel-complete-modal-overlay" class="travel-modal-overlay" style="display:none;">
+        <div class="travel-modal-box">
+            <h3 id="travel-complete-modal-title">完成副本</h3>
+            <p>请输入副本痕迹</p>
+            <textarea id="travel-trace-input" placeholder="副本痕迹"></textarea>
+            <div id="travel-complete-error" class="travel-error">⚠️ 副本痕迹不能为空</div>
+            <div class="modal-buttons" style="justify-content:center;">
+                <button class="travel-confirm-btn" onclick="confirmCompleteTravel()">确 定</button>
+                <button class="travel-cancel-btn" onclick="closeTravelCompleteModal()">取 消</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- 简单提示弹窗（灵石不足等） -->
+    <div id="simple-alert-overlay" class="simple-alert-overlay" style="display:none;">
+        <div class="simple-alert-box">
+            <h3>提示</h3>
+            <p id="simple-alert-message"></p>
+            <div class="modal-buttons" style="justify-content:center;">
+                <button class="simple-alert-btn" onclick="closeSimpleAlert()">确 定</button>
             </div>
         </div>
     </div>
@@ -1409,7 +1679,7 @@
                     <span class="attribute-icon">📖</span>
                     <span class="attribute-name">智 力</span>
                     <span class="attribute-value" id="attr-int">12</span>
-                    <span class="attribute-hint">看书 课程</span>
+                    <span class="attribute-hint" data-original="看书 课程">看书 课程</span>
                     <span class="attribute-status" id="status-int">开始修炼</span>
                     <span class="cancel-cultivation-btn" id="cancel-int" style="display:none;">取消</span>
                 </div>
@@ -1417,7 +1687,7 @@
                     <span class="attribute-icon">💪</span>
                     <span class="attribute-name">体 质</span>
                     <span class="attribute-value" id="attr-str">9</span>
-                    <span class="attribute-hint">健身 运动</span>
+                    <span class="attribute-hint" data-original="健身 运动">健身 运动</span>
                     <span class="attribute-status" id="status-str">开始修炼</span>
                     <span class="cancel-cultivation-btn" id="cancel-str" style="display:none;">取消</span>
                 </div>
@@ -1425,7 +1695,7 @@
                     <span class="attribute-icon">📐</span>
                     <span class="attribute-name">秩 序</span>
                     <span class="attribute-value" id="attr-ord">14</span>
-                    <span class="attribute-hint">整理 收拾</span>
+                    <span class="attribute-hint" data-original="整理 收拾">整理 收拾</span>
                     <span class="attribute-status" id="status-ord">开始修炼</span>
                     <span class="cancel-cultivation-btn" id="cancel-ord" style="display:none;">取消</span>
                 </div>
@@ -1433,7 +1703,7 @@
                     <span class="attribute-icon">🍃</span>
                     <span class="attribute-name">灵 巧</span>
                     <span class="attribute-value" id="attr-dex">11</span>
-                    <span class="attribute-hint">创作 输出</span>
+                    <span class="attribute-hint" data-original="创作 输出">创作 输出</span>
                     <span class="attribute-status" id="status-dex">开始修炼</span>
                     <span class="cancel-cultivation-btn" id="cancel-dex" style="display:none;">取消</span>
                 </div>
@@ -1441,7 +1711,7 @@
                     <span class="attribute-icon">🍀</span>
                     <span class="attribute-name">幸 运</span>
                     <span class="attribute-value" id="attr-lck">8</span>
-                    <span class="attribute-hint">利他 善事</span>
+                    <span class="attribute-hint" data-original="利他 善事">利他 善事</span>
                     <span class="attribute-status" id="status-lck">开始修炼</span>
                     <span class="cancel-cultivation-btn" id="cancel-lck" style="display:none;">取消</span>
                 </div>
@@ -1450,7 +1720,7 @@
             <div class="recent-log-area">
                 <span class="recent-log-text" id="recent-log">— 点击属性卡片开始修炼 —</span>
             </div>
-            <div class="main-version">v1.04</div>
+            <div class="main-version">v1.05</div>
         </div>
 
         <!-- ===== 修仙四艺模块 ===== -->
@@ -1497,6 +1767,58 @@
             </div>
         </div>
 
+        <!-- ===== 云游四海模块 ===== -->
+        <div class="cultivation-panel" id="travel-panel">
+            <div class="corner-decoration corner-tl"></div>
+            <div class="corner-decoration corner-tr"></div>
+            <div class="corner-decoration corner-bl"></div>
+            <div class="corner-decoration corner-br"></div>
+
+            <div class="header-section">
+                <h2 class="panel-title" style="font-size:1.5em;">🗺️ 云 游 四 海</h2>
+                <p style="font-size:0.65em;color:rgba(220,200,160,0.5);letter-spacing:2px;text-align:center;">消耗灵石 · 挑战副本 · 获得修为</p>
+                <div class="divider"></div>
+            </div>
+
+            <div class="travel-grid">
+                <!-- 初级游历 -->
+                <div class="travel-card primary" id="travel-easy">
+                    <span class="module-icon">🌿</span>
+                    <div class="travel-difficulty easy">初 级 游 历</div>
+                    <div class="travel-reward">🎯 成功奖励：<b style="color:#7ef0c8;">+30 修为</b></div>
+                    <div class="travel-cost">🪨 消耗 10 灵石</div>
+                    <div class="travel-example" id="travel-easy-example">📋 例：3个月减10斤</div>
+                    <div class="travel-progress" id="travel-easy-progress" style="display:none;"></div>
+                    <button class="travel-btn" id="travel-easy-btn" onclick="handleTravelButton('easy')">开启副本</button>
+                    <div class="travel-count" id="travel-easy-count" data-type="31">游历0次</div>
+                </div>
+
+                <!-- 中级游历 -->
+                <div class="travel-card warning" id="travel-medium">
+                    <span class="module-icon">⛰️</span>
+                    <div class="travel-difficulty medium">中 级 游 历</div>
+                    <div class="travel-reward">🎯 成功奖励：<b style="color:#7ef0c8;">+50 修为</b></div>
+                    <div class="travel-cost">🪨 消耗 10 灵石</div>
+                    <div class="travel-example" id="travel-medium-example">📋 例：3个月减15斤</div>
+                    <div class="travel-progress" id="travel-medium-progress" style="display:none;"></div>
+                    <button class="travel-btn" id="travel-medium-btn" onclick="handleTravelButton('medium')">开启副本</button>
+                    <div class="travel-count" id="travel-medium-count" data-type="32">游历0次</div>
+                </div>
+
+                <!-- 高级游历 -->
+                <div class="travel-card danger" id="travel-hard">
+                    <span class="module-icon">🌋</span>
+                    <div class="travel-difficulty hard">高 级 游 历</div>
+                    <div class="travel-reward">🎯 成功奖励：<b style="color:#7ef0c8;">+100 修为</b></div>
+                    <div class="travel-cost">🪨 消耗 10 灵石</div>
+                    <div class="travel-example" id="travel-hard-example">📋 例：3个月减20斤</div>
+                    <div class="travel-progress" id="travel-hard-progress" style="display:none;"></div>
+                    <button class="travel-btn" id="travel-hard-btn" onclick="handleTravelButton('hard')">开启副本</button>
+                    <div class="travel-count" id="travel-hard-count" data-type="33">游历0次</div>
+                </div>
+            </div>
+        </div>
+
         <!-- ===== 日志面板 ===== -->
         <div id="rizhi-panel-view" class="rizhi-panel">
             <div class="corner-decoration corner-tl"></div>
@@ -1526,8 +1848,11 @@
         let currentUser = null;
         let rizhiLogs = [];
         let xiulianRecords = [];
+        let youliRecords = [];
+        let activeTravels = { easy: null, medium: null, hard: null };
         let currentFourArtType = null;
         let selectedQuality = null;
+        let currentTravelType = null;
 
         // ========== 大境界定义 ==========
         const bigStages = [
@@ -1569,6 +1894,13 @@
             qi: { name: '炼器', icon: '⚒️', type: 22, inputLabel: '法器名称', unit: '件' },
             fu: { name: '制符', icon: '📝', type: 23, inputLabel: '灵符名称', unit: '件' },
             ti: { name: '炼体', icon: '🔥', type: 24, inputLabel: '技能名称', unit: '个技能' }
+        };
+
+        // ========== 云游映射 ==========
+        const travelMap = {
+            easy: { name: '初级游历', icon: '🌿', type: 31, cost: 10, reward: 30 },
+            medium: { name: '中级游历', icon: '⛰️', type: 32, cost: 10, reward: 50 },
+            hard: { name: '高级游历', icon: '🌋', type: 33, cost: 10, reward: 100 }
         };
 
         // ========== 粒子背景 ==========
@@ -1684,6 +2016,15 @@
             if (msgEl) msgEl.textContent = message;
         }
 
+        // ========== 简单提示弹窗 ==========
+        function showSimpleAlert(message) {
+            document.getElementById('simple-alert-message').textContent = message;
+            document.getElementById('simple-alert-overlay').style.display = 'flex';
+        }
+        function closeSimpleAlert() {
+            document.getElementById('simple-alert-overlay').style.display = 'none';
+        }
+
         // ========== UI 更新 ==========
         function updateUI(animateValue = false) {
             const bigStage = getCurrentBigStage();
@@ -1729,6 +2070,7 @@
 
             updateCultivationStatus();
             updateFourArtsCount();
+            updateTravelCards();
         }
 
         function updateCultivationStatus() {
@@ -1737,14 +2079,17 @@
                 const statusEl = document.getElementById(`status-${short}`);
                 const cardEl = document.getElementById(`card-${short}`);
                 const cancelBtn = document.getElementById(`cancel-${short}`);
+                const hintEl = cardEl ? cardEl.querySelector('.attribute-hint') : null;
                 if (cultivationData.cultivatingAttribute === attr) {
                     statusEl.textContent = '修炼完成';
                     cardEl.classList.add('cultivating');
                     if (cancelBtn) cancelBtn.style.display = 'inline-block';
+                    if (hintEl) hintEl.textContent = '修炼中...';
                 } else {
                     statusEl.textContent = '开始修炼';
                     cardEl.classList.remove('cultivating');
                     if (cancelBtn) cancelBtn.style.display = 'none';
+                    if (hintEl) hintEl.textContent = hintEl.dataset.original || '';
                 }
             });
         }
@@ -1774,6 +2119,9 @@
             });
             Object.values(fourArtsMap).forEach(art => {
                 typeIconMap[art.type] = art.icon;
+            });
+            Object.values(travelMap).forEach(travel => {
+                typeIconMap[travel.type] = travel.icon;
             });
 
             container.innerHTML = rizhiLogs.map(log => {
@@ -2027,10 +2375,7 @@
                 .select('*')
                 .eq('number', currentUser.number)
                 .order('time', { ascending: false });
-            if (error) {
-                console.error('获取修炼记录失败:', error);
-                return;
-            }
+            if (error) { console.error('获取修炼记录失败:', error); return; }
             xiulianRecords = data || [];
             updateFourArtsCount();
         }
@@ -2068,6 +2413,279 @@
 
         function closeListModal() {
             document.getElementById('list-modal-overlay').style.display = 'none';
+        }
+
+        // ========== 云游四海功能 ==========
+        function handleTravelButton(type) {
+            if (activeTravels[type]) {
+                // 完成副本
+                currentTravelType = type;
+                document.getElementById('travel-complete-modal-title').textContent = `完成${travelMap[type].name}`;
+                document.getElementById('travel-trace-input').value = '';
+                document.getElementById('travel-complete-error').style.display = 'none';
+                document.getElementById('travel-complete-modal-overlay').style.display = 'flex';
+            } else {
+                // 开启副本
+                if (cultivationData.spiritStones < 10) {
+                    showSimpleAlert('灵石不足10，无法开启副本！');
+                    return;
+                }
+                currentTravelType = type;
+                document.getElementById('travel-open-modal-title').textContent = `开启${travelMap[type].name}`;
+                document.getElementById('travel-open-modal-desc').textContent = '开启副本需消耗10灵石';
+                document.getElementById('travel-name-input').value = '';
+                document.getElementById('travel-detail-input').value = '';
+                document.getElementById('travel-endtime-input').value = '';
+                document.getElementById('travel-open-error').style.display = 'none';
+                document.getElementById('travel-open-modal-overlay').style.display = 'flex';
+            }
+        }
+
+        function closeTravelOpenModal() {
+            document.getElementById('travel-open-modal-overlay').style.display = 'none';
+            currentTravelType = null;
+        }
+
+        function closeTravelCompleteModal() {
+            document.getElementById('travel-complete-modal-overlay').style.display = 'none';
+            currentTravelType = null;
+        }
+
+        // 禁用/启用弹窗控件
+        function setTravelModalLoading(modalId, isLoading) {
+            const modal = document.getElementById(modalId);
+            if (!modal) return;
+            const inputs = modal.querySelectorAll('input, textarea, button');
+            inputs.forEach(el => el.disabled = isLoading);
+        }
+
+        async function confirmOpenTravel() {
+            if (!currentTravelType) return;
+            const name = document.getElementById('travel-name-input').value.trim();
+            const detail = document.getElementById('travel-detail-input').value.trim();
+            const endtime = document.getElementById('travel-endtime-input').value;
+            const errorEl = document.getElementById('travel-open-error');
+
+            if (!name || !detail || !endtime) {
+                errorEl.style.display = 'block';
+                return;
+            }
+
+            // 检查关闭时间是否大于当前时间+1天
+            const selectedTime = new Date(endtime).getTime();
+            const minTime = Date.now() + 24 * 60 * 60 * 1000;
+            if (selectedTime < minTime) {
+                errorEl.textContent = '⚠️ 关闭时间须在当前时间一天之后';
+                errorEl.style.display = 'block';
+                return;
+            }
+
+            const type = currentTravelType;
+            const travel = travelMap[type];
+
+            // 置灰弹窗控件
+            setTravelModalLoading('travel-open-modal-overlay', true);
+
+            // 扣除灵石
+            cultivationData.spiritStones -= travel.cost;
+            updateUI(true);
+
+            // 插入 youli 表
+            const youliData = {
+                number: currentUser.number,
+                starttime: new Date().toISOString(),
+                endtime: new Date(endtime).toISOString(),
+                type: travel.type,
+                status: 1,
+                name: name,
+                completetime: null,
+                detail: detail
+            };
+            const { data: insertedYouli, error: insertYouliError } = await mysupabase
+                .from('youli')
+                .insert([youliData])
+                .select()
+                .single();
+            if (insertYouliError) console.error('插入youli表失败:', insertYouliError);
+
+            // 插入 rizhi 表
+            const record = `开启${travel.name}《${name}》副本，消耗10灵石`;
+            const { error: insertRizhiError } = await mysupabase
+                .from('rizhi')
+                .insert([{ number: currentUser.number, time: new Date().toISOString(), type: travel.type, record: record }]);
+            if (insertRizhiError) console.error('插入日志失败:', insertRizhiError);
+
+            // 更新本地 activeTravels
+            if (insertedYouli) {
+                activeTravels[type] = insertedYouli;
+            }
+
+            await updateUserData();
+            await fetchRizhiLogs();
+            await fetchYouliRecords();
+            closeTravelOpenModal();
+            setTravelModalLoading('travel-open-modal-overlay', false);
+            updateTravelCards();
+        }
+
+        async function confirmCompleteTravel() {
+            if (!currentTravelType) return;
+            const trace = document.getElementById('travel-trace-input').value.trim();
+            if (!trace) {
+                document.getElementById('travel-complete-error').style.display = 'block';
+                return;
+            }
+
+            const type = currentTravelType;
+            const travel = travelMap[type];
+            const activeRecord = activeTravels[type];
+
+            // 置灰弹窗控件
+            setTravelModalLoading('travel-complete-modal-overlay', true);
+
+            // 更新 youli 表状态为已完成
+            if (activeRecord) {
+                const { error: updateYouliError } = await mysupabase
+                    .from('youli')
+                    .update({ status: 2, completetime: new Date().toISOString() })
+                    .eq('number', currentUser.number)
+                    .eq('type', travel.type)
+                    .eq('status', 1);
+                if (updateYouliError) console.error('更新youli表失败:', updateYouliError);
+            }
+
+            // 插入 rizhi 表
+            const record = `完成${travel.name}《${activeRecord ? activeRecord.name : ''}》副本，痕迹：${trace}，修为增加${travel.reward}`;
+            const { error: insertRizhiError } = await mysupabase
+                .from('rizhi')
+                .insert([{ number: currentUser.number, time: new Date().toISOString(), type: travel.type, record: record }]);
+            if (insertRizhiError) console.error('插入日志失败:', insertRizhiError);
+
+            // 增加修为
+            cultivationData.cultivationValue += travel.reward;
+            const oldStageIndex = cultivationData.stageIndex;
+            cultivationData.stageIndex = getBigStageIndex(cultivationData.cultivationValue);
+            if (cultivationData.stageIndex !== oldStageIndex) {
+                triggerBreakthrough();
+            }
+
+            activeTravels[type] = null;
+            await updateUserData();
+            // 重新查询 users 表并初始化
+            await reloadUserData();
+            await fetchRizhiLogs();
+            await fetchYouliRecords();
+            closeTravelCompleteModal();
+            setTravelModalLoading('travel-complete-modal-overlay', false);
+            updateTravelCards();
+            setRecentLog(`✨ 完成${travel.name}，修为+${travel.reward}`);
+        }
+
+        async function reloadUserData() {
+            if (!currentUser) return;
+            const { data: user, error } = await mysupabase
+                .from('users')
+                .select('*')
+                .eq('name', currentUser.name)
+                .maybeSingle();
+            if (error || !user) {
+                console.error('重新加载用户数据失败:', error);
+                return;
+            }
+            cultivationData = mapUserToCultivationData(user);
+            updateUI();
+        }
+
+        async function fetchYouliRecords() {
+            if (!currentUser) return;
+            const { data, error } = await mysupabase
+                .from('youli')
+                .select('*')
+                .eq('number', currentUser.number)
+                .order('starttime', { ascending: false });
+            if (error) { console.error('获取游历记录失败:', error); return; }
+            youliRecords = data || [];
+
+            // 检查过期游历
+            const now = new Date();
+            for (const record of youliRecords) {
+                if (record.status === 1 && record.endtime && new Date(record.endtime) < now) {
+                    await mysupabase
+                        .from('youli')
+                        .update({ status: 2, completetime: new Date().toISOString() })
+                        .eq('number', currentUser.number)
+                        .eq('type', record.type)
+                        .eq('status', 1);
+                    record.status = 2;
+                    record.completetime = new Date().toISOString();
+                }
+            }
+
+            // 更新 activeTravels
+            activeTravels = { easy: null, medium: null, hard: null };
+            youliRecords.forEach(r => {
+                if (r.status === 1) {
+                    if (r.type === 31) activeTravels.easy = r;
+                    else if (r.type === 32) activeTravels.medium = r;
+                    else if (r.type === 33) activeTravels.hard = r;
+                }
+            });
+
+            updateTravelCards();
+        }
+
+        function updateTravelCards() {
+            const types = ['easy', 'medium', 'hard'];
+            types.forEach(type => {
+                const card = document.getElementById(`travel-${type}`);
+                const btn = document.getElementById(`travel-${type}-btn`);
+                const example = document.getElementById(`travel-${type}-example`);
+                const progress = document.getElementById(`travel-${type}-progress`);
+                const countEl = document.getElementById(`travel-${type}-count`);
+                const typeNum = travelMap[type].type;
+                const count = youliRecords.filter(r => r.type === typeNum).length;
+
+                countEl.textContent = `游历${count}次`;
+
+                if (activeTravels[type]) {
+                    card.classList.add('cultivating');
+                    btn.textContent = '完成副本';
+                    example.style.display = 'none';
+                    progress.style.display = 'block';
+                    progress.textContent = `副本《${activeTravels[type].name}》进行中...`;
+                } else {
+                    card.classList.remove('cultivating');
+                    btn.textContent = '开启副本';
+                    example.style.display = 'block';
+                    progress.style.display = 'none';
+                }
+            });
+        }
+
+        function showYouliList(type) {
+            const typeNum = travelMap[type].type;
+            const records = youliRecords.filter(r => r.type === typeNum);
+            const travel = travelMap[type];
+            document.getElementById('list-modal-title').textContent = `${travel.name}列表（共${records.length}条）`;
+            const content = document.getElementById('list-modal-content');
+            if (records.length === 0) {
+                content.innerHTML = '<div class="list-modal-item">暂无记录</div>';
+            } else {
+                const statusMap = { 1: '开启中', 2: '已完成', 3: '失败' };
+                content.innerHTML = records.map(r => {
+                    const statusText = statusMap[r.status] || '未知';
+                    const startTime = r.starttime ? formatTime(r.starttime) : '未知';
+                    const endTime = r.endtime ? formatTime(r.endtime) : '未知';
+                    const completeTime = r.completetime ? formatTime(r.completetime) : '未知';
+                    return `<div class="list-modal-item">
+                        【${statusText}】${escapeHtml(r.name)}<br>
+                        开始：${startTime}<br>
+                        关闭：${endTime}<br>
+                        完成：${completeTime}
+                    </div>`;
+                }).join('');
+            }
+            document.getElementById('list-modal-overlay').style.display = 'flex';
         }
 
         // ========== 数据库操作 ==========
@@ -2115,7 +2733,6 @@
                 showLogin();
                 return;
             }
-            // 显示加载状态
             setLoginLoading(true, '入卷检索中...');
             try {
                 const { data: user, error } = await mysupabase.from('users').select('*').eq('name', cachedUser.name).maybeSingle();
@@ -2128,6 +2745,7 @@
                 cultivationData = mapUserToCultivationData(user);
                 await fetchRizhiLogs();
                 await fetchXiulianRecords();
+                await fetchYouliRecords();
                 enterMainPanel();
             } finally {
                 setLoginLoading(false, '');
@@ -2159,7 +2777,6 @@
 
             if (!daoName || !password) { messageEl.textContent = '道号和神纹均不能为空'; return; }
 
-            // 设置加载状态
             setLoginLoading(true, '正在入卷...');
 
             try {
@@ -2181,6 +2798,7 @@
                     setCachedUser(user);
                     await fetchRizhiLogs();
                     await fetchXiulianRecords();
+                    await fetchYouliRecords();
                     messageEl.textContent = '登录成功，欢迎回来！';
                     enterMainPanel();
                 } else {
@@ -2201,6 +2819,7 @@
                     setCachedUser(insertedUser);
                     await fetchRizhiLogs();
                     await fetchXiulianRecords();
+                    await fetchYouliRecords();
 
                     messageEl.textContent = '恭喜新道友入卷！';
                     spawnSpiritParticles(document.getElementById('login-btn'), '🎉 入卷', 12);
@@ -2220,6 +2839,8 @@
             cultivationData = null;
             rizhiLogs = [];
             xiulianRecords = [];
+            youliRecords = [];
+            activeTravels = { easy: null, medium: null, hard: null };
             showLogin();
         }
 
@@ -2258,11 +2879,32 @@
                 if (e.target === this) closeListModal();
             });
 
+            document.getElementById('travel-open-modal-overlay').addEventListener('click', function (e) {
+                if (e.target === this) closeTravelOpenModal();
+            });
+
+            document.getElementById('travel-complete-modal-overlay').addEventListener('click', function (e) {
+                if (e.target === this) closeTravelCompleteModal();
+            });
+
+            document.getElementById('simple-alert-overlay').addEventListener('click', function (e) {
+                if (e.target === this) closeSimpleAlert();
+            });
+
             document.querySelectorAll('.four-art-count').forEach(el => {
                 el.addEventListener('click', function (e) {
                     e.stopPropagation();
                     const type = parseInt(this.dataset.type);
                     showListModal(type);
+                });
+            });
+
+            document.querySelectorAll('.travel-count').forEach(el => {
+                el.addEventListener('click', function (e) {
+                    e.stopPropagation();
+                    const typeNum = parseInt(this.dataset.type);
+                    const type = Object.keys(travelMap).find(key => travelMap[key].type === typeNum);
+                    if (type) showYouliList(type);
                 });
             });
         }

@@ -50,6 +50,7 @@ https://supabase.com/
 
 ##刷新功能详细设计如下##
 --------------------------------------------------------------------------- 
+版本号V1.06
 SUPABASE在线数据库信息：
 SUPABASE_URL为https://iejwqfiqdxhkdqjmwfki.supabase.co，SUPABASE_ANON_KEY为sb_publishable_uQdpBniIdCdBwzoukWJNjw_vWEyC396
 users表：有number、name、password、createtime、xiuwei、lingshi、zhili、tizhi、zhixu、lingqiao、xingyun字段
@@ -63,7 +64,7 @@ youli表：有number、starttime、endtime、type、status、name、completetime
 1、users表信息初始化：
 name对应道号
 createtime对应道龄X天（计算逻辑为当前时间-createtime，向上取整）
-xiuwei对应修为值，境界根据修为值做计算
+xiuwei对应修为值，境界根据修为值映射逻辑做计算
 lingshi对应灵石
 zhili对应智力
 tizhi对应体质
@@ -97,7 +98,7 @@ type为33：统计对应数量，展示在云游四海的高级游历区域，�
 
 登录处理逻辑为：
 1、首先从浏览器缓存中获取当前登录user信息，如果能获取到直接用缓存的user的name字段查询数据库最新值，并做初始化
-2、当点击登录页面的入卷按钮时，根据name去users表中查询，如果查询不到则新增一条数据，name、password为界面的输入值，number为数据库中的最大值+1，xiuwei、lingshi、zhili、tizhi、zhixu、lingqiao、xingyun都为0，同时界面呈现炫酷提示“恭喜新道友入卷”，然后回到主界面。使用新建用户name做初始化
+2、当点击登录页面的入卷按钮时，根据name去users表中查询，如果查询不到则新增一条数据，name、password为界面的输入值，number为数据库中的最大值+1，xiuwei、zhili、tizhi、zhixu、lingqiao、xingyun都为0,lingshi为10，同时界面呈现炫酷提示“恭喜新道友入卷”，然后回到主界面。使用新建用户name做初始化
 如果根据name查询的到数据且name跟password都对得上，则使用查询到的name做初始化。将当前登录用户的name、number放入浏览器缓存
 如果根据name查询的到数据但password对不上，则出现炫酷提示“道友神纹匹配失败”然后重新回到登录页面并把神纹输入框内容清空
 3、当点击出卷按钮，执行登出操作，清空浏览器保存的当前用户缓存。界面回到登录页面。
@@ -108,6 +109,7 @@ type为33：统计对应数量，展示在云游四海的高级游历区域，�
 炼气期1层（修为值0~9）、炼气期2层（修为值10~19）、炼气期3层（修为值20~29）、炼气期4层（修为值30~99）、炼气期5层（修为值100~199）、炼气期6层（修为值200~299）、炼气期7层（修为值300~499）、炼气期8层（修为值500~699）、炼气期9层（修为值700~899）、炼气期大圆满（修为值900~999）
 筑基前期（修为值1000~1499）、筑基中期（修为值1500~1999）、筑基后期（修为值2000~2899）、筑基后期（修为值2900~2999）
 金丹期（修为值3000及以上）
+鼠标移动到修为值进度条上时显示：数字1/数字2   数字1：为当前小境界已积累的经验值，数字2：为当前小境界一共需要的总修为值  进度条按照这个百分比显示进度
 
 
 修仙四艺功能逻辑：

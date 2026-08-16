@@ -13,6 +13,7 @@ let activeTravels = { easy: null, medium: null, hard: null };
 let currentFourArtType = null;
 let selectedQuality = null;
 let currentTravelType = null;
+let isTravelProcessing = false; // 防止重复提交云游操作
 
 // ========== 大境界定义 ==========
 const bigStages = [
@@ -36,7 +37,7 @@ const smallStages = [
     { name: '筑基前期', min: 1000, max: 1499 },
     { name: '筑基中期', min: 1500, max: 1999 },
     { name: '筑基后期', min: 2000, max: 2899 },
-    { name: '筑基后期', min: 2900, max: 2999 },
+    { name: '筑基巅峰', min: 2900, max: 2999 },
     { name: '金丹期', min: 3000, max: Infinity }
 ];
 
@@ -190,6 +191,15 @@ function closeSimpleAlert() {
     document.getElementById('simple-alert-overlay').style.display = 'none';
 }
 
+// ========== 全局加载提示 ==========
+function showLoadingToast(message) {
+    document.getElementById('loading-toast-text').textContent = message;
+    document.getElementById('loading-toast').style.display = 'block';
+}
+function hideLoadingToast() {
+    document.getElementById('loading-toast').style.display = 'none';
+}
+
 // ========== UI 更新 ==========
 function updateUI(animateValue = false) {
     const bigStage = getCurrentBigStage();
@@ -307,9 +317,11 @@ function spawnSpiritParticles(sourceElement, text, count = 8) {
         const particle = document.createElement('span');
         particle.className = 'spirit-particle';
         particle.textContent = text;
-        particle.style.left = cx + (Math.random() - 0.5) * 60 + 'px';
+        // 左右偏移适配两倍：原 60 改为 120
+        particle.style.left = cx + (Math.random() - 0.5) * 120 + 'px';
         particle.style.top = cy + (Math.random() - 0.5) * 40 + 'px';
-        particle.style.fontSize = (Math.random() * 0.5 + 0.7) + 'em';
+        // 字体大小增大两倍：原 (Math.random()*0.5+0.7)em，现乘以2
+        particle.style.fontSize = ((Math.random() * 0.5 + 0.7) * 2) + 'em';
         document.body.appendChild(particle);
         particle.addEventListener('animationend', () => particle.remove());
     }
@@ -581,6 +593,8 @@ function closeListModal() {
 
 // ========== 云游四海功能 ==========
 function handleTravelButton(type) {
+    if (isTravelProcessing) return; // 防止处理中重复点击
+
     if (activeTravels[type]) {
         currentTravelType = type;
         document.getElementById('travel-complete-modal-title').textContent = `完成${travelMap[type].name}`;
@@ -621,7 +635,9 @@ function setTravelModalLoading(modalId, isLoading) {
 }
 
 async function confirmOpenTravel() {
+    if (isTravelProcessing) return;
     if (!currentTravelType) return;
+
     const name = document.getElementById('travel-name-input').value.trim();
     const detail = document.getElementById('travel-detail-input').value.trim();
     const endtime = document.getElementById('travel-endtime-input').value;
@@ -643,48 +659,65 @@ async function confirmOpenTravel() {
     const type = currentTravelType;
     const travel = travelMap[type];
 
-    setTravelModalLoading('travel-open-modal-overlay', true);
-
-    cultivationData.spiritStones -= travel.cost;
-    updateUI(true);
-
-    const youliData = {
-        number: currentUser.number,
-        starttime: new Date().toISOString(),
-        endtime: new Date(endtime).toISOString(),
-        type: travel.type,
-        status: 1,
-        name: name,
-        completetime: null,
-        detail: detail
-    };
-    const { data: insertedYouli, error: insertYouliError } = await mysupabase
-        .from('youli')
-        .insert([youliData])
-        .select()
-        .single();
-    if (insertYouliError) console.error('插入youli表失败:', insertYouliError);
-
-    const record = `开启${travel.name}《${name}》副本，消耗10灵石`;
-    const { error: insertRizhiError } = await mysupabase
-        .from('rizhi')
-        .insert([{ number: currentUser.number, time: new Date().toISOString(), type: travel.type, record: record }]);
-    if (insertRizhiError) console.error('插入日志失败:', insertRizhiError);
-
-    if (insertedYouli) {
-        activeTravels[type] = insertedYouli;
-    }
-
-    await updateUserData();
-    await fetchRizhiLogs();
-    await fetchYouliRecords();
+    // 立即关闭弹窗（方案要求）
     closeTravelOpenModal();
-    setTravelModalLoading('travel-open-modal-overlay', false);
-    updateTravelCards();
+
+    // 显示加载提示
+    isTravelProcessing = true;
+    showLoadingToast('副本开启中...');
+
+    try {
+        // 更新本地数据
+        cultivationData.spiritStones -= travel.cost;
+        updateUI(true);
+
+        const youliData = {
+            number: currentUser.number,
+            starttime: new Date().toISOString(),
+            endtime: new Date(endtime).toISOString(),
+            type: travel.type,
+            status: 1,
+            name: name,
+            completetime: null,
+            detail: detail
+        };
+        const { data: insertedYouli, error: insertYouliError } = await mysupabase
+            .from('youli')
+            .insert([youliData])
+            .select()
+            .single();
+        if (insertYouliError) console.error('插入youli表失败:', insertYouliError);
+
+        const record = `开启${travel.name}《${name}》副本，消耗10灵石`;
+        const { error: insertRizhiError } = await mysupabase
+            .from('rizhi')
+            .insert([{ number: currentUser.number, time: new Date().toISOString(), type: travel.type, record: record }]);
+        if (insertRizhiError) console.error('插入日志失败:', insertRizhiError);
+
+        if (insertedYouli) {
+            activeTravels[type] = insertedYouli;
+        }
+
+        await updateUserData();
+        await fetchRizhiLogs();
+        await fetchYouliRecords();
+        updateTravelCards();
+        setRecentLog(`✨ 已开启${travel.name}副本《${name}》`);
+    } catch (err) {
+        console.error('开启副本失败:', err);
+        // 如果失败，尝试恢复本地数据
+        await reloadUserData();
+        showSimpleAlert('开启副本失败，请稍后重试');
+    } finally {
+        isTravelProcessing = false;
+        hideLoadingToast();
+    }
 }
 
 async function confirmCompleteTravel() {
+    if (isTravelProcessing) return;
     if (!currentTravelType) return;
+
     const trace = document.getElementById('travel-trace-input').value.trim();
     if (!trace) {
         document.getElementById('travel-complete-error').style.display = 'block';
@@ -695,40 +728,53 @@ async function confirmCompleteTravel() {
     const travel = travelMap[type];
     const activeRecord = activeTravels[type];
 
-    setTravelModalLoading('travel-complete-modal-overlay', true);
-
-    if (activeRecord) {
-        const { error: updateYouliError } = await mysupabase
-            .from('youli')
-            .update({ status: 2, completetime: new Date().toISOString() })
-            .eq('number', currentUser.number)
-            .eq('type', travel.type)
-            .eq('status', 1);
-        if (updateYouliError) console.error('更新youli表失败:', updateYouliError);
-    }
-
-    const record = `完成${travel.name}《${activeRecord ? activeRecord.name : ''}》副本，痕迹：${trace}，修为增加${travel.reward}`;
-    const { error: insertRizhiError } = await mysupabase
-        .from('rizhi')
-        .insert([{ number: currentUser.number, time: new Date().toISOString(), type: travel.type, record: record }]);
-    if (insertRizhiError) console.error('插入日志失败:', insertRizhiError);
-
-    cultivationData.cultivationValue += travel.reward;
-    const oldStageIndex = cultivationData.stageIndex;
-    cultivationData.stageIndex = getBigStageIndex(cultivationData.cultivationValue);
-    if (cultivationData.stageIndex !== oldStageIndex) {
-        triggerBreakthrough();
-    }
-
-    activeTravels[type] = null;
-    await updateUserData();
-    await reloadUserData();
-    await fetchRizhiLogs();
-    await fetchYouliRecords();
+    // 立即关闭弹窗（方案要求）
     closeTravelCompleteModal();
-    setTravelModalLoading('travel-complete-modal-overlay', false);
-    updateTravelCards();
-    setRecentLog(`✨ 完成${travel.name}，修为+${travel.reward}`);
+
+    // 显示加载提示
+    isTravelProcessing = true;
+    showLoadingToast('副本关闭中...');
+
+    try {
+        if (activeRecord) {
+            const { error: updateYouliError } = await mysupabase
+                .from('youli')
+                .update({ status: 2, completetime: new Date().toISOString() })
+                .eq('number', currentUser.number)
+                .eq('type', travel.type)
+                .eq('status', 1);
+            if (updateYouliError) console.error('更新youli表失败:', updateYouliError);
+        }
+
+        const record = `完成${travel.name}《${activeRecord ? activeRecord.name : ''}》副本，痕迹：${trace}，修为增加${travel.reward}`;
+        const { error: insertRizhiError } = await mysupabase
+            .from('rizhi')
+            .insert([{ number: currentUser.number, time: new Date().toISOString(), type: travel.type, record: record }]);
+        if (insertRizhiError) console.error('插入日志失败:', insertRizhiError);
+
+        cultivationData.cultivationValue += travel.reward;
+        const oldStageIndex = cultivationData.stageIndex;
+        cultivationData.stageIndex = getBigStageIndex(cultivationData.cultivationValue);
+        if (cultivationData.stageIndex !== oldStageIndex) {
+            triggerBreakthrough();
+        }
+
+        activeTravels[type] = null;
+        await updateUserData();
+        await reloadUserData();
+        await fetchRizhiLogs();
+        await fetchYouliRecords();
+        updateTravelCards();
+        setRecentLog(`✨ 完成${travel.name}，修为+${travel.reward}`);
+        spawnSpiritParticles(document.getElementById(`travel-${type}`), `✨+${travel.reward}`, 8);
+    } catch (err) {
+        console.error('完成副本失败:', err);
+        await reloadUserData();
+        showSimpleAlert('完成副本失败，请稍后重试');
+    } finally {
+        isTravelProcessing = false;
+        hideLoadingToast();
+    }
 }
 
 async function reloadUserData() {
@@ -736,7 +782,7 @@ async function reloadUserData() {
     const { data: user, error } = await mysupabase
         .from('users')
         .select('*')
-        .eq('name', currentUser.name)
+        .eq('number', currentUser.number)
         .maybeSingle();
     if (error || !user) {
         console.error('重新加载用户数据失败:', error);
@@ -767,8 +813,18 @@ async function fetchYouliRecords() {
                 .eq('status', 1);
             record.status = 2;
             record.completetime = new Date().toISOString();
+
+            // 写入到期关闭日志
+            const expireLog = `副本《${record.name}》已到期关闭`;
+            const { error: expireLogError } = await mysupabase
+                .from('rizhi')
+                .insert([{ number: currentUser.number, time: new Date().toISOString(), type: record.type, record: expireLog }]);
+            if (expireLogError) console.error('插入到期日志失败:', expireLogError);
         }
     }
+
+    // 刷新修行日志，确保到期日志显示
+    await fetchRizhiLogs();
 
     activeTravels = { easy: null, medium: null, hard: null };
     youliRecords.forEach(r => {
@@ -848,7 +904,7 @@ async function updateUserData() {
         lingqiao: cultivationData.attributes.dexterity,
         xingyun: cultivationData.attributes.luck
     };
-    const { error } = await mysupabase.from('users').update(dbUpdates).eq('name', currentUser.name);
+    const { error } = await mysupabase.from('users').update(dbUpdates).eq('number', currentUser.number);
     if (error) console.error('更新用户数据失败:', error);
 }
 
@@ -989,6 +1045,8 @@ function handleLogout() {
     xiulianRecords = [];
     youliRecords = [];
     activeTravels = { easy: null, medium: null, hard: null };
+    isTravelProcessing = false;
+    hideLoadingToast();
     showLogin();
 }
 

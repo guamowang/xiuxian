@@ -204,7 +204,7 @@
         /* ========== 出卷按钮 ========== */
         .logout-btn {
             position: absolute;
-            top: 20px;
+            top: 30px;
             right: 28px;
             z-index: 10;
             background: rgba(220, 180, 80, 0.12);
@@ -258,7 +258,7 @@
                 pointer-events: none;
             }
 
-        /* ========== 极简双线角（方案A，无圆球） ========== */
+        /* ========== 极简双线角 ========== */
         .corner-decoration {
             position: absolute;
             width: 40px;
@@ -312,6 +312,7 @@
             font-size: 2.2em;
             color: #f5e0b0;
             letter-spacing: 6px;
+            margin-top: 0;
             margin-bottom: 5px;
             font-weight: normal;
             text-shadow: 0 0 30px rgba(240, 210, 130, 0.5), 0 0 60px rgba(220, 180, 80, 0.3);
@@ -1514,6 +1515,32 @@
             cursor: not-allowed;
             pointer-events: none;
         }
+
+        /* ========== 全局加载提示 ========== */
+        .loading-toast {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            z-index: 3000;
+            background: rgba(20, 15, 35, 0.95);
+            border: 2px solid rgba(220, 180, 80, 0.7);
+            border-radius: 16px;
+            padding: 20px 40px;
+            text-align: center;
+            box-shadow: 0 0 80px rgba(180, 140, 60, 0.6);
+            backdrop-filter: blur(20px);
+            animation: fadeIn 0.2s ease;
+            pointer-events: none; /* 阻止点击 */
+        }
+
+        .loading-toast-text {
+            font-family: var(--font-title);
+            font-size: 1.5em;
+            color: #ffd700;
+            letter-spacing: 3px;
+            text-shadow: 0 0 20px rgba(255, 215, 0, 0.6);
+        }
     </style>
 </head>
 <body>
@@ -1536,7 +1563,7 @@
             </div>
             <button id="login-btn" class="login-btn">入 卷</button>
             <div id="login-message" class="login-message"></div>
-            <div class="version-text">v1.06</div>
+            <div class="version-text">v1.07</div>
         </div>
     </div>
 
@@ -1641,6 +1668,11 @@
         </div>
     </div>
 
+    <!-- 全局加载提示 -->
+    <div id="loading-toast" class="loading-toast" style="display:none;">
+        <span class="loading-toast-text" id="loading-toast-text">副本开启中...</span>
+    </div>
+
     <!-- 主容器 -->
     <div id="main-container" class="main-container" style="display:none;">
 
@@ -1742,7 +1774,7 @@
             <div class="recent-log-area">
                 <span class="recent-log-text" id="recent-log">— 点击属性卡片开始修炼 —</span>
             </div>
-            <div class="main-version">v1.06</div>
+            <div class="main-version">v1.07</div>
         </div>
 
         <!-- ===== 修仙四艺模块 ===== -->

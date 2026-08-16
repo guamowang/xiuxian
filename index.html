@@ -5,6 +5,8 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>修仙面板 - 太虚道卷</title>
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <!-- 引入 pinyin-pro -->
+    <script src="https://cdn.jsdelivr.net/npm/pinyin-pro@latest/dist/index.js"></script>
     <style>
         :root {
             --bg-deep: #0a0a14;
@@ -1516,14 +1518,16 @@
         /* ========== 弹窗字段左标签 ========== */
         .travel-field-row {
             display: flex;
-            align-items: center;
+            flex-direction: column;
+            align-items: flex-start;
             margin-bottom: 12px;
         }
 
             .travel-field-row label {
-                width: 80px;
-                text-align: right;
-                margin-right: 10px;
+                width: auto;
+                text-align: left;
+                margin-right: 0;
+                margin-bottom: 4px;
                 font-size: 0.75em;
                 color: rgba(220, 200, 160, 0.8);
                 letter-spacing: 1px;
@@ -1532,7 +1536,7 @@
 
             .travel-field-row input,
             .travel-field-row textarea {
-                flex: 1;
+                width: 100%;
                 background: rgba(30, 22, 45, 0.8);
                 border: 1px solid rgba(200, 160, 80, 0.35);
                 border-radius: 6px;
@@ -1665,16 +1669,16 @@
             <div class="login-divider"></div>
             <div class="login-field">
                 <label for="login-dao-name">道号</label>
-                <input type="text" id="login-dao-name" placeholder="请输入道号" autocomplete="off">
+                <input type="text" id="login-dao-name" placeholder="请输入道号（中英文数字）" autocomplete="off">
             </div>
             <div class="login-field">
                 <label for="login-spirit-mark">神纹</label>
-                <input type="password" id="login-spirit-mark" placeholder="请输入神纹" autocomplete="off">
+                <input type="password" id="login-spirit-mark" placeholder="请输入神纹（至少6位）" autocomplete="off">
             </div>
             <button id="login-btn" class="login-btn">入 卷</button>
             <div id="login-message" class="login-message"></div>
             <div class="login-loading" id="login-loading">入卷检索中...</div>
-            <div class="version-text">v1.09</div>
+            <div class="version-text">v1.10</div>
         </div>
     </div>
 
@@ -1826,7 +1830,7 @@
             </div>
 
             <div class="cultivation-core">
-                <div class="cultivation-stage" id="stage-name">炼气期1层</div>
+                <div class="cultivation-stage" id="stage-name">炼气1层</div>
                 <div class="cultivation-value-row">
                     <span class="cultivation-label">修 为 值</span>
                     <span class="cultivation-number" id="cultivation-value">47</span>
@@ -1885,7 +1889,7 @@
             <div class="recent-log-area">
                 <span class="recent-log-text" id="recent-log">— 点击属性卡片开始修炼 —</span>
             </div>
-            <div class="main-version">v1.09</div>
+            <div class="main-version">v1.10</div>
         </div>
 
         <!-- ===== 修仙四艺模块 ===== -->

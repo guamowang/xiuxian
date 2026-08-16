@@ -25,16 +25,16 @@ const bigStages = [
 
 // ========== 小境界定义 ==========
 const smallStages = [
-    { name: '炼气期1层', min: 0, max: 9 },
-    { name: '炼气期2层', min: 10, max: 19 },
-    { name: '炼气期3层', min: 20, max: 29 },
-    { name: '炼气期4层', min: 30, max: 99 },
-    { name: '炼气期5层', min: 100, max: 199 },
-    { name: '炼气期6层', min: 200, max: 299 },
-    { name: '炼气期7层', min: 300, max: 499 },
-    { name: '炼气期8层', min: 500, max: 699 },
-    { name: '炼气期9层', min: 700, max: 899 },
-    { name: '炼气期大圆满', min: 900, max: 999 },
+    { name: '炼气1层', min: 0, max: 9 },
+    { name: '炼气2层', min: 10, max: 19 },
+    { name: '炼气3层', min: 20, max: 29 },
+    { name: '炼气4层', min: 30, max: 99 },
+    { name: '炼气5层', min: 100, max: 199 },
+    { name: '炼气6层', min: 200, max: 299 },
+    { name: '炼气7层', min: 300, max: 499 },
+    { name: '炼气8层', min: 500, max: 699 },
+    { name: '炼气9层', min: 700, max: 899 },
+    { name: '炼气巅峰', min: 900, max: 999 },
     { name: '筑基前期', min: 1000, max: 1499 },
     { name: '筑基中期', min: 1500, max: 1999 },
     { name: '筑基后期', min: 2000, max: 2899 },
@@ -174,6 +174,7 @@ function escapeHtml(str) {
 // ========== 登录状态管理 ==========
 function setLoginLoading(isLoading, message = '') {
     const loginBox = document.querySelector('.login-box');
+    const loginLoading = document.getElementById('login-loading');
     const daoInput = document.getElementById('login-dao-name');
     const markInput = document.getElementById('login-spirit-mark');
     const btn = document.getElementById('login-btn');
@@ -181,6 +182,7 @@ function setLoginLoading(isLoading, message = '') {
 
     if (isLoading) {
         loginBox.classList.add('loading');
+        if (loginLoading && message) loginLoading.textContent = message;
         if (daoInput) daoInput.disabled = true;
         if (markInput) markInput.disabled = true;
         if (btn) btn.disabled = true;
@@ -323,9 +325,15 @@ function renderRizhiLogs() {
 
 // ========== 粒子特效 ==========
 function spawnSpiritParticles(sourceElement, text, count = 8) {
-    const rect = sourceElement.getBoundingClientRect();
-    const cx = rect.left + rect.width / 2;
-    const cy = rect.top + rect.height / 2;
+    let cx, cy;
+    if (sourceElement === null) {
+        cx = window.innerWidth / 2;
+        cy = window.innerHeight / 2;
+    } else {
+        const rect = sourceElement.getBoundingClientRect();
+        cx = rect.left + rect.width / 2;
+        cy = rect.top + rect.height / 2;
+    }
     for (let i = 0; i < count; i++) {
         const particle = document.createElement('span');
         particle.className = 'spirit-particle';
@@ -927,21 +935,21 @@ function mapUserToCultivationData(user) {
     };
 }
 
-function getCachedUser() { const c = localStorage.getItem('current_user'); return c ? JSON.parse(c) : null; }
-function setCachedUser(user) { localStorage.setItem('current_user', JSON.stringify({ name: user.name, number: user.number })); }
-function clearCachedUser() { localStorage.removeItem('current_user'); }
-
 async function checkAutoLogin() {
-    const cachedUser = getCachedUser();
-    if (!cachedUser || !cachedUser.name) {
+    const { data: { session } } = await mysupabase.auth.getSession();
+    if (!session) {
         showLogin();
         return;
     }
     setLoginLoading(true, '入卷检索中...');
     try {
-        const { data: user, error } = await mysupabase.from('users').select('*').eq('name', cachedUser.name).maybeSingle();
+        const { data: user, error } = await mysupabase
+            .from('users')
+            .select('*')
+            .eq('auth_id', session.user.id)
+            .maybeSingle();
         if (error || !user) {
-            clearCachedUser();
+            await mysupabase.auth.signOut();
             setLoginLoading(false, '');
             showLogin();
             return;
@@ -974,72 +982,156 @@ function enterMainPanel() {
     setRecentLog('点击属性卡片开始修炼，修炼达成后点击"修炼完成"按钮');
 }
 
+// 将道号转换为拼音邮箱前缀
+function convertDaoNameToPinyin(daoName) {
+    if (!window.pinyinPro) {
+        console.warn('pinyin-pro 未加载，使用原道号作为邮箱前缀');
+        return daoName.replace(/[^a-zA-Z0-9]/g, '');
+    }
+    let result = '';
+    for (const char of daoName) {
+        if (/[a-zA-Z0-9]/.test(char)) {
+            result += char.toLowerCase();
+        } else if (/[\u4e00-\u9fa5]/.test(char)) {
+            const py = window.pinyinPro.pinyin(char, { toneType: 'none', type: 'array' })[0];
+            result += py.toLowerCase();
+        }
+        // 其他字符（空格、特殊符号）直接忽略
+    }
+    return result;
+}
+
 async function handleLogin() {
     const daoName = document.getElementById('login-dao-name').value.trim();
     const password = document.getElementById('login-spirit-mark').value.trim();
     const messageEl = document.getElementById('login-message');
-    const loginBtn = document.getElementById('login-btn');
 
-    if (!daoName || !password) { messageEl.textContent = '道号和神纹均不能为空'; return; }
+    if (!daoName) {
+        messageEl.textContent = '道号不能为空';
+        return;
+    }
+    // 校验只允许中文、英文、数字
+    if (!/^[\u4e00-\u9fa5A-Za-z0-9]+$/.test(daoName)) {
+        messageEl.textContent = '道号仅允许中文、英文、数字';
+        return;
+    }
+    if (password.length < 6) {
+        messageEl.textContent = '神纹至少需要6位';
+        return;
+    }
+
+    const emailPrefix = convertDaoNameToPinyin(daoName);
+    if (!emailPrefix) {
+        messageEl.textContent = '道号格式有误';
+        return;
+    }
+    const email = `${emailPrefix}@taixu.com`;
 
     setLoginLoading(true, '正在入卷...');
 
     try {
-        const { data: user, error: queryError } = await mysupabase.from('users').select('*').eq('name', daoName).maybeSingle();
-        if (queryError) throw queryError;
+        // 尝试登录
+        const { data: signInData, error: signInError } = await mysupabase.auth.signInWithPassword({
+            email: email,
+            password: password
+        });
 
-        if (user) {
-            if (user.password !== password) {
+        if (signInError) {
+            // 登录失败，尝试注册
+            const { data: signUpData, error: signUpError } = await mysupabase.auth.signUp({
+                email: email,
+                password: password
+            });
+
+            if (signUpError) {
+                // 注册失败，可能邮箱已存在（密码错误）
+                setLoginLoading(false, '');
                 const spiritInput = document.getElementById('login-spirit-mark');
                 spiritInput.value = '';
                 messageEl.textContent = '道友神纹匹配失败';
-                spawnSpiritParticles(spiritInput, '❌ 神纹错误', 10);
+                spawnSpiritParticles(null, '❌ 神纹错误', 10);
                 spiritInput.style.animation = 'shake 0.5s ease';
                 spiritInput.addEventListener('animationend', () => { spiritInput.style.animation = ''; }, { once: true });
                 return;
             }
+
+            const authUser = signUpData.user;
+            if (!authUser) {
+                setLoginLoading(false, '');
+                messageEl.textContent = '注册未完成，请稍后重试';
+                return;
+            }
+
+            // 插入 users 表
+            const newUser = {
+                name: daoName,
+                auth_id: authUser.id,
+                password: password,
+                createtime: new Date().toISOString(),
+                xiuwei: 0,
+                lingshi: 10,
+                zhili: 0,
+                tizhi: 0,
+                zhixu: 0,
+                lingqiao: 0,
+                xingyun: 0
+            };
+
+            const { data: insertedUser, error: insertError } = await mysupabase
+                .from('users')
+                .insert([newUser])
+                .select()
+                .single();
+            if (insertError) {
+                console.error('插入 users 失败:', insertError);
+                await mysupabase.auth.signOut();
+                setLoginLoading(false, '');
+                messageEl.textContent = '注册失败，请稍后重试';
+                return;
+            }
+
+            setLoginLoading(true, '恭喜新道友入卷成功');
+            spawnSpiritParticles(null, '🎉 入卷', 12);
+
+            currentUser = insertedUser;
+            cultivationData = mapUserToCultivationData(insertedUser);
+            await fetchRizhiLogs();
+            await fetchXiulianRecords();
+            await fetchYouliRecords();
+
+            setTimeout(() => {
+                enterMainPanel();
+            }, 800);
+        } else {
+            // 登录成功
+            const authUser = signInData.user;
+            const { data: user, error: queryError } = await mysupabase
+                .from('users')
+                .select('*')
+                .eq('auth_id', authUser.id)
+                .maybeSingle();
+            if (queryError || !user) {
+                setLoginLoading(false, '');
+                messageEl.textContent = '用户数据异常，请联系管理员';
+                return;
+            }
             currentUser = user;
             cultivationData = mapUserToCultivationData(user);
-            setCachedUser(user);
             await fetchRizhiLogs();
             await fetchXiulianRecords();
             await fetchYouliRecords();
             messageEl.textContent = '登录成功，欢迎回来！';
             enterMainPanel();
-        } else {
-            const { data: maxData } = await mysupabase.from('users').select('number').order('number', { ascending: false }).limit(1);
-            let newNumber = 1;
-            if (maxData && maxData.length > 0) newNumber = maxData[0].number + 1;
-
-            const newUser = {
-                number: newNumber, name: daoName, password: password,
-                createtime: new Date().toISOString(),
-                xiuwei: 0, lingshi: 10, zhili: 0, tizhi: 0, zhixu: 0, lingqiao: 0, xingyun: 0
-            };
-            const { data: insertedUser, error: insertError } = await mysupabase.from('users').insert([newUser]).select().single();
-            if (insertError) throw insertError;
-
-            currentUser = insertedUser;
-            cultivationData = mapUserToCultivationData(insertedUser);
-            setCachedUser(insertedUser);
-            await fetchRizhiLogs();
-            await fetchXiulianRecords();
-            await fetchYouliRecords();
-
-            messageEl.textContent = '恭喜新道友入卷！';
-            spawnSpiritParticles(document.getElementById('login-btn'), '🎉 入卷', 12);
-            setTimeout(() => enterMainPanel(), 800);
         }
     } catch (err) {
         console.error('登录/注册异常:', err);
-        messageEl.textContent = '网络错误，请稍后再试';
-    } finally {
         setLoginLoading(false, '');
+        messageEl.textContent = '网络错误，请稍后再试';
     }
 }
 
-function handleLogout() {
-    clearCachedUser();
+async function handleLogout() {
+    await mysupabase.auth.signOut();
     currentUser = null;
     cultivationData = null;
     rizhiLogs = [];

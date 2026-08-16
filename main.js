@@ -14,6 +14,7 @@ let currentFourArtType = null;
 let selectedQuality = null;
 let currentTravelType = null;
 let isTravelProcessing = false;
+let cultivationTimer = null;
 
 // ========== 大境界定义 ==========
 const bigStages = [
@@ -272,7 +273,11 @@ function updateCultivationStatus() {
             statusEl.textContent = '修炼完成';
             cardEl.classList.add('cultivating');
             if (cancelBtn) cancelBtn.style.display = 'inline-block';
-            if (hintEl) hintEl.textContent = '修炼中...';
+            if (hintEl) {
+                const elapsed = Date.now() - (cultivationData.cultivatingStartTime || Date.now());
+                const minutes = Math.max(1, Math.ceil(elapsed / 60000));
+                hintEl.textContent = `修炼中...(${minutes}分钟)`;
+            }
         } else {
             statusEl.textContent = '开始修炼';
             cardEl.classList.remove('cultivating');
@@ -359,10 +364,13 @@ function handleAttributeClick(event) {
 
 function startCultivation(attribute, card) {
     cultivationData.cultivatingAttribute = attribute;
+    cultivationData.cultivatingStartTime = Date.now();
     updateCultivationStatus();
     const attrInfo = attributeMap[attribute];
     setRecentLog(`🧘 开始修炼${attrInfo.name}... 达成1小时后点击"修炼完成"按钮`);
     spawnSpiritParticles(card, attrInfo.icon, 5);
+    if (cultivationTimer) clearInterval(cultivationTimer);
+    cultivationTimer = setInterval(updateCultivationStatus, 1000);
 }
 
 function openCompleteModal(attribute) {
@@ -395,9 +403,11 @@ function confirmComplete() {
 }
 
 async function completeCultivation(attribute, card, note = '') {
+    if (cultivationTimer) { clearInterval(cultivationTimer); cultivationTimer = null; }
     cultivationData.attributes[attribute] += 1;
     cultivationData.cultivationValue += 1;
     cultivationData.cultivatingAttribute = null;
+    cultivationData.cultivatingStartTime = null;
 
     const oldStageIndex = cultivationData.stageIndex;
     const newStageIndex = getBigStageIndex(cultivationData.cultivationValue);
@@ -432,7 +442,9 @@ async function completeCultivation(attribute, card, note = '') {
 
 function cancelCultivation(attribute) {
     if (cultivationData.cultivatingAttribute !== attribute) return;
+    if (cultivationTimer) { clearInterval(cultivationTimer); cultivationTimer = null; }
     cultivationData.cultivatingAttribute = null;
+    cultivationData.cultivatingStartTime = null;
     updateCultivationStatus();
     const attrInfo = attributeMap[attribute];
     setRecentLog(`🚫 已取消${attrInfo.name}的修炼，无任何收益`);
@@ -910,7 +922,8 @@ function mapUserToCultivationData(user) {
             dexterity: user.lingqiao || 0,
             luck: user.xingyun || 0
         },
-        cultivatingAttribute: null
+        cultivatingAttribute: null,
+        cultivatingStartTime: null
     };
 }
 
@@ -1034,6 +1047,7 @@ function handleLogout() {
     youliRecords = [];
     activeTravels = { easy: null, medium: null, hard: null };
     isTravelProcessing = false;
+    if (cultivationTimer) { clearInterval(cultivationTimer); cultivationTimer = null; }
     hideLoadingToast();
     showLogin();
 }

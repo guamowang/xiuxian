@@ -199,15 +199,25 @@
             font-size: 1.5em;
             color: #f5e0b0;
             letter-spacing: 4px;
-            text-shadow: 0 0 20px rgba(255, 215, 0, 0.8);
+            text-shadow: 0 0 20px rgba(245, 224, 176, 0.6);
             padding: 20px 0;
+            animation: loginLoadingScale 2s ease-in-out infinite;
+        }
+
+        @keyframes loginLoadingScale {
+            0%, 100% {
+                transform: scale(1);
+            }
+
+            50% {
+                transform: scale(1.08);
+            }
         }
 
         .login-box.loading .login-divider,
         .login-box.loading .login-field,
         .login-box.loading .login-btn,
-        .login-box.loading .login-message,
-        .login-box.loading .version-text {
+        .login-box.loading .login-message {
             display: none;
         }
 
@@ -628,6 +638,12 @@
             margin-bottom: 2px;
         }
 
+        /* 修炼中提示变为金色并闪烁 */
+        .attribute-card.cultivating .attribute-hint {
+            color: var(--gold-bright);
+            animation: statusBlink 1s ease-in-out infinite;
+        }
+
         .attribute-status {
             display: inline-block;
             padding: 4px 12px;
@@ -649,12 +665,12 @@
                 box-shadow: 0 0 10px rgba(220, 180, 80, 0.4);
             }
 
+        /* 修炼完成按钮：仅变色，不闪烁 */
         .attribute-card.cultivating .attribute-status {
             background: rgba(255, 215, 0, 0.2);
             border-color: #ffd700;
             color: #ffd700;
             box-shadow: 0 0 15px rgba(255, 215, 0, 0.4);
-            animation: statusBlink 1s ease-in-out infinite;
         }
 
         @keyframes statusBlink {
@@ -1618,12 +1634,10 @@
                 font-size: 1em;
             }
 
-            /* 展开状态：箭头朝上 */
             .panel-collapse-icon-btn:not(.collapsed) .icon-arrow {
                 transform: rotate(-90deg);
             }
 
-            /* 折叠状态：箭头朝下 */
             .panel-collapse-icon-btn.collapsed .icon-arrow {
                 transform: rotate(90deg);
             }
@@ -1660,7 +1674,7 @@
             <button id="login-btn" class="login-btn">入 卷</button>
             <div id="login-message" class="login-message"></div>
             <div class="login-loading" id="login-loading">入卷检索中...</div>
-            <div class="version-text">v1.08</div>
+            <div class="version-text">v1.09</div>
         </div>
     </div>
 
@@ -1871,7 +1885,7 @@
             <div class="recent-log-area">
                 <span class="recent-log-text" id="recent-log">— 点击属性卡片开始修炼 —</span>
             </div>
-            <div class="main-version">v1.08</div>
+            <div class="main-version">v1.09</div>
         </div>
 
         <!-- ===== 修仙四艺模块 ===== -->

@@ -192,6 +192,29 @@
             letter-spacing: 1px;
         }
 
+        /* 登录加载状态 */
+        .login-loading {
+            display: none;
+            font-family: var(--font-title);
+            font-size: 1.5em;
+            color: #f5e0b0;
+            letter-spacing: 4px;
+            text-shadow: 0 0 20px rgba(255, 215, 0, 0.8);
+            padding: 20px 0;
+        }
+
+        .login-box.loading .login-divider,
+        .login-box.loading .login-field,
+        .login-box.loading .login-btn,
+        .login-box.loading .login-message,
+        .login-box.loading .version-text {
+            display: none;
+        }
+
+        .login-box.loading .login-loading {
+            display: block;
+        }
+
         /* ========== 主容器 ========== */
         .main-container {
             position: relative;
@@ -1140,7 +1163,22 @@
             letter-spacing: 1px;
             text-align: left;
             margin-bottom: 16px;
+            scrollbar-width: thin;
+            scrollbar-color: rgba(200, 160, 80, 0.3) transparent;
         }
+
+            .list-modal-list::-webkit-scrollbar {
+                width: 3px;
+            }
+
+            .list-modal-list::-webkit-scrollbar-track {
+                background: transparent;
+            }
+
+            .list-modal-list::-webkit-scrollbar-thumb {
+                background: rgba(200, 160, 80, 0.3);
+                border-radius: 2px;
+            }
 
         .list-modal-item {
             padding: 6px 0;
@@ -1531,7 +1569,7 @@
             box-shadow: 0 0 80px rgba(180, 140, 60, 0.6);
             backdrop-filter: blur(20px);
             animation: fadeIn 0.2s ease;
-            pointer-events: none; /* 阻止点击 */
+            pointer-events: none;
         }
 
         .loading-toast-text {
@@ -1540,6 +1578,64 @@
             color: #ffd700;
             letter-spacing: 3px;
             text-shadow: 0 0 20px rgba(255, 215, 0, 0.6);
+        }
+
+        /* ========== 折叠图标按钮（底部中间） ========== */
+        .panel-collapse-icon-wrap {
+            display: flex;
+            justify-content: center;
+            margin-top: 10px;
+            margin-bottom: -10px;
+            position: relative;
+            z-index: 5;
+        }
+
+        .panel-collapse-icon-btn {
+            background: transparent;
+            border: none;
+            color: #f5e0b0;
+            font-size: 1.2em;
+            cursor: pointer;
+            padding: 0;
+            line-height: 1;
+            letter-spacing: -0.15em;
+            transition: color 0.3s ease, text-shadow 0.3s ease, opacity 0.3s ease;
+            animation: collapseFloat 2s ease-in-out infinite;
+            text-shadow: 0 0 10px rgba(220, 180, 80, 0.7);
+            opacity: 0.7;
+        }
+
+            .panel-collapse-icon-btn:hover {
+                color: #ffd700;
+                text-shadow: 0 0 20px rgba(255, 215, 0, 0.9);
+                opacity: 1;
+            }
+
+            .panel-collapse-icon-btn .icon-arrow {
+                display: inline-block;
+                transition: transform 0.3s ease;
+                line-height: 1;
+                font-size: 1em;
+            }
+
+            /* 展开状态：箭头朝上 */
+            .panel-collapse-icon-btn:not(.collapsed) .icon-arrow {
+                transform: rotate(-90deg);
+            }
+
+            /* 折叠状态：箭头朝下 */
+            .panel-collapse-icon-btn.collapsed .icon-arrow {
+                transform: rotate(90deg);
+            }
+
+        @keyframes collapseFloat {
+            0%, 100% {
+                transform: translateY(0);
+            }
+
+            50% {
+                transform: translateY(-5px);
+            }
         }
     </style>
 </head>
@@ -1563,7 +1659,8 @@
             </div>
             <button id="login-btn" class="login-btn">入 卷</button>
             <div id="login-message" class="login-message"></div>
-            <div class="version-text">v1.07</div>
+            <div class="login-loading" id="login-loading">入卷检索中...</div>
+            <div class="version-text">v1.08</div>
         </div>
     </div>
 
@@ -1691,7 +1788,7 @@
                 <div class="divider"></div>
             </div>
 
-            <!-- 身份信息区：道号、道龄、境界、灵石 -->
+            <!-- 身份信息区 -->
             <div class="identity-section">
                 <div class="identity-item">
                     <div class="identity-label">道号</div>
@@ -1774,7 +1871,7 @@
             <div class="recent-log-area">
                 <span class="recent-log-text" id="recent-log">— 点击属性卡片开始修炼 —</span>
             </div>
-            <div class="main-version">v1.07</div>
+            <div class="main-version">v1.08</div>
         </div>
 
         <!-- ===== 修仙四艺模块 ===== -->
@@ -1786,10 +1883,11 @@
 
             <div class="header-section">
                 <h2 class="panel-title" style="font-size:1.5em;">✦ 修 仙 四 艺 ✦</h2>
+                <p style="font-size:0.65em;color:rgba(220,200,160,0.5);letter-spacing:2px;text-align:center;">修炼成就 · 获取灵石</p>
                 <div class="divider"></div>
             </div>
 
-            <div class="four-arts-section">
+            <div class="four-arts-section" id="four-arts-content">
                 <div class="four-art-card" id="four-art-gongfa" data-four-art="gongfa">
                     <span class="four-art-icon">📜</span>
                     <div class="four-art-name">功 法</div>
@@ -1819,6 +1917,13 @@
                     <div class="four-art-count" id="count-ti" data-type="24">已修炼0个技能</div>
                 </div>
             </div>
+
+            <!-- 折叠按钮（底部中间） -->
+            <div class="panel-collapse-icon-wrap">
+                <button class="panel-collapse-icon-btn" data-target="four-arts-content">
+                    <span class="icon-arrow">❯❯</span>
+                </button>
+            </div>
         </div>
 
         <!-- ===== 云游四海模块 ===== -->
@@ -1834,7 +1939,7 @@
                 <div class="divider"></div>
             </div>
 
-            <div class="travel-grid">
+            <div class="travel-grid" id="travel-content">
                 <div class="travel-card primary" id="travel-easy">
                     <span class="module-icon">🌿</span>
                     <div class="travel-difficulty easy">初 级 游 历</div>
@@ -1866,6 +1971,13 @@
                     <div class="travel-count" id="travel-hard-count" data-type="33">游历0次</div>
                 </div>
             </div>
+
+            <!-- 折叠按钮（底部中间） -->
+            <div class="panel-collapse-icon-wrap">
+                <button class="panel-collapse-icon-btn" data-target="travel-content">
+                    <span class="icon-arrow">❯❯</span>
+                </button>
+            </div>
         </div>
 
         <!-- ===== 日志面板 ===== -->
@@ -1887,5 +1999,22 @@
     </div>
 
     <script src="main.js"></script>
+    <script>
+        // 折叠按钮逻辑
+        document.querySelectorAll('.panel-collapse-icon-btn').forEach(btn => {
+            btn.addEventListener('click', function () {
+                const targetId = this.dataset.target;
+                const target = document.getElementById(targetId);
+                if (!target) return;
+                if (target.style.display === 'none') {
+                    target.style.display = '';
+                    this.classList.remove('collapsed');
+                } else {
+                    target.style.display = 'none';
+                    this.classList.add('collapsed');
+                }
+            });
+        });
+    </script>
 </body>
 </html>

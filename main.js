@@ -13,7 +13,7 @@ let activeTravels = { easy: null, medium: null, hard: null };
 let currentFourArtType = null;
 let selectedQuality = null;
 let currentTravelType = null;
-let isTravelProcessing = false; // 防止重复提交云游操作
+let isTravelProcessing = false;
 
 // ========== 大境界定义 ==========
 const bigStages = [
@@ -172,14 +172,24 @@ function escapeHtml(str) {
 
 // ========== 登录状态管理 ==========
 function setLoginLoading(isLoading, message = '') {
+    const loginBox = document.querySelector('.login-box');
     const daoInput = document.getElementById('login-dao-name');
     const markInput = document.getElementById('login-spirit-mark');
     const btn = document.getElementById('login-btn');
     const msgEl = document.getElementById('login-message');
-    if (daoInput) daoInput.disabled = isLoading;
-    if (markInput) markInput.disabled = isLoading;
-    if (btn) btn.disabled = isLoading;
-    if (msgEl) msgEl.textContent = message;
+
+    if (isLoading) {
+        loginBox.classList.add('loading');
+        if (daoInput) daoInput.disabled = true;
+        if (markInput) markInput.disabled = true;
+        if (btn) btn.disabled = true;
+        if (msgEl) msgEl.textContent = '';
+    } else {
+        loginBox.classList.remove('loading');
+        if (daoInput) daoInput.disabled = false;
+        if (markInput) markInput.disabled = false;
+        if (btn) btn.disabled = false;
+    }
 }
 
 // ========== 简单提示弹窗 ==========
@@ -219,7 +229,6 @@ function updateUI(animateValue = false) {
     cvEl.textContent = cv;
     if (animateValue) { cvEl.classList.remove('pop'); void cvEl.offsetWidth; cvEl.classList.add('pop'); }
 
-    // 进度条逻辑（基于小境界）
     let pp = 100;
     let currentExp = 0;
     let totalExp = 0;
@@ -231,7 +240,6 @@ function updateUI(animateValue = false) {
         pp = Math.min(100, Math.max(0, (currentExp / totalExp) * 100));
         rt = `距 ${nextSmall.name} 还需 ${totalExp - currentExp} 修为`;
     } else if (currentSmall && !nextSmall) {
-        // 最高境界
         currentExp = cv;
         totalExp = cv;
         pp = 100;
@@ -317,10 +325,8 @@ function spawnSpiritParticles(sourceElement, text, count = 8) {
         const particle = document.createElement('span');
         particle.className = 'spirit-particle';
         particle.textContent = text;
-        // 左右偏移适配两倍：原 60 改为 120
         particle.style.left = cx + (Math.random() - 0.5) * 120 + 'px';
         particle.style.top = cy + (Math.random() - 0.5) * 40 + 'px';
-        // 字体大小增大两倍：原 (Math.random()*0.5+0.7)em，现乘以2
         particle.style.fontSize = ((Math.random() * 0.5 + 0.7) * 2) + 'em';
         document.body.appendChild(particle);
         particle.addEventListener('animationend', () => particle.remove());
@@ -593,8 +599,7 @@ function closeListModal() {
 
 // ========== 云游四海功能 ==========
 function handleTravelButton(type) {
-    if (isTravelProcessing) return; // 防止处理中重复点击
-
+    if (isTravelProcessing) return;
     if (activeTravels[type]) {
         currentTravelType = type;
         document.getElementById('travel-complete-modal-title').textContent = `完成${travelMap[type].name}`;
@@ -627,17 +632,9 @@ function closeTravelCompleteModal() {
     currentTravelType = null;
 }
 
-function setTravelModalLoading(modalId, isLoading) {
-    const modal = document.getElementById(modalId);
-    if (!modal) return;
-    const inputs = modal.querySelectorAll('input, textarea, button');
-    inputs.forEach(el => el.disabled = isLoading);
-}
-
 async function confirmOpenTravel() {
     if (isTravelProcessing) return;
     if (!currentTravelType) return;
-
     const name = document.getElementById('travel-name-input').value.trim();
     const detail = document.getElementById('travel-detail-input').value.trim();
     const endtime = document.getElementById('travel-endtime-input').value;
@@ -659,15 +656,11 @@ async function confirmOpenTravel() {
     const type = currentTravelType;
     const travel = travelMap[type];
 
-    // 立即关闭弹窗（方案要求）
     closeTravelOpenModal();
-
-    // 显示加载提示
     isTravelProcessing = true;
     showLoadingToast('副本开启中...');
 
     try {
-        // 更新本地数据
         cultivationData.spiritStones -= travel.cost;
         updateUI(true);
 
@@ -705,7 +698,6 @@ async function confirmOpenTravel() {
         setRecentLog(`✨ 已开启${travel.name}副本《${name}》`);
     } catch (err) {
         console.error('开启副本失败:', err);
-        // 如果失败，尝试恢复本地数据
         await reloadUserData();
         showSimpleAlert('开启副本失败，请稍后重试');
     } finally {
@@ -728,10 +720,7 @@ async function confirmCompleteTravel() {
     const travel = travelMap[type];
     const activeRecord = activeTravels[type];
 
-    // 立即关闭弹窗（方案要求）
     closeTravelCompleteModal();
-
-    // 显示加载提示
     isTravelProcessing = true;
     showLoadingToast('副本关闭中...');
 
@@ -814,7 +803,6 @@ async function fetchYouliRecords() {
             record.status = 2;
             record.completetime = new Date().toISOString();
 
-            // 写入到期关闭日志
             const expireLog = `副本《${record.name}》已到期关闭`;
             const { error: expireLogError } = await mysupabase
                 .from('rizhi')
@@ -823,7 +811,6 @@ async function fetchYouliRecords() {
         }
     }
 
-    // 刷新修行日志，确保到期日志显示
     await fetchRizhiLogs();
 
     activeTravels = { easy: null, medium: null, hard: null };
@@ -942,6 +929,7 @@ async function checkAutoLogin() {
         const { data: user, error } = await mysupabase.from('users').select('*').eq('name', cachedUser.name).maybeSingle();
         if (error || !user) {
             clearCachedUser();
+            setLoginLoading(false, '');
             showLogin();
             return;
         }
@@ -1122,7 +1110,6 @@ function init() {
     checkAutoLogin();
 }
 
-// 添加 shake 动画
 const style = document.createElement('style');
 style.textContent = `
     @keyframes shake { 0%, 100% { transform: translateX(0); } 20% { transform: translateX(-5px); } 40% { transform: translateX(5px); } 60% { transform: translateX(-3px); } 80% { transform: translateX(3px); } }

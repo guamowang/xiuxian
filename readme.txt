@@ -50,11 +50,14 @@ https://supabase.com/
 修仙系统开发回话2：
 我有个修仙系统，需要与你一起配合开发，使用纯github托管的前端html静态页面+supabase实现的。
 我把完整方案逻辑描述以及当前的页面代码告诉你（共两个文件：一个index.html、一个main.js）我们一起基于这些做持续优化开发。
+参考云游四海的模块结构，修仙四艺下面增加一行字“修炼成就 · 获取灵石”
+❯❯修改为展开时朝上、折叠时朝下，去掉外面包裹的圆圈，双尖括号增加上下浮动动效、轻微发光感，大小稍微调大一点
+登录页面
 --------------------------------------------------------------------------- 
 
 ##刷新功能详细设计如下##
 --------------------------------------------------------------------------- 
-版本号V1.07
+版本号V1.08
 SUPABASE在线数据库信息：
 SUPABASE_URL为https://iejwqfiqdxhkdqjmwfki.supabase.co，SUPABASE_ANON_KEY为sb_publishable_uQdpBniIdCdBwzoukWJNjw_vWEyC396
 users表：有number、name、password、createtime、xiuwei、lingshi、zhili、tizhi、zhixu、lingqiao、xingyun字段
@@ -97,7 +100,7 @@ type为33：统计对应数量，展示在云游四海的高级游历区域，�
 
 
 【登录处理】逻辑：
-1、首先从浏览器缓存中获取当前登录user信息，如果能获取到直接用缓存的user的name字段查询数据库最新值，并做初始化
+1、首先从浏览器缓存中获取当前登录user信息，如果能获取到直接用缓存的user的name字段查询数据库最新值，并做初始化（此检索过程中隐藏道号、神纹、入卷按钮相关区域，中间显示“入卷检索中...”）
 2、当点击登录页面的入卷按钮时，根据name去users表中查询，如果查询不到则新增一条数据，name、password为界面的输入值，number为数据库中的最大值+1，xiuwei、zhili、tizhi、zhixu、lingqiao、xingyun都为0,lingshi为10，同时界面呈现炫酷提示“恭喜新道友入卷”，然后回到主界面。使用新建用户name做初始化
 如果根据name查询的到数据且name跟password都对得上，则使用查询到的name做初始化。将当前登录用户的name、number放入浏览器缓存
 如果根据name查询的到数据但password对不上，则出现炫酷提示“道友神纹匹配失败”然后重新回到登录页面并把神纹输入框内容清空
